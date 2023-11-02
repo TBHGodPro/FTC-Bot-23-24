@@ -10,11 +10,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.Func;
 
 enum BotState {
-    Loading,
-    Ready,
-    Running,
-    Cancelled,
-    Stopped
+  Loading,
+  Ready,
+  Running,
+  Cancelled,
+  Stopped
 }
 
 @TeleOp(name = "MainOp")
@@ -43,31 +43,43 @@ public class MainOp extends LinearOpMode {
   private double backLeft_strafe_correction = 0.7;
   private double backRight_strafe_correction = 0.7;
 
-  private DcMotor.Direction rightWheelDirection = DcMotor.Direction.FORWARD;
   private DcMotor.Direction leftWheelDirection = DcMotor.Direction.REVERSE;
+  private DcMotor.Direction rightWheelDirection = DcMotor.Direction.FORWARD;
 
   private DcMotor.ZeroPowerBehavior wheelZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
 
   private DcMotor.RunMode wheelRunMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER;
 
+  // Arm
+  private DcMotor armLeft;
+  private DcMotor.Direction armLeftDirection = DcMotor.Direction.FORWARD;
+
+  private DcMotor armRight;
+  private DcMotor.Direction armRightDirection = DcMotor.Direction.REVERSE;
+
+  private DcMotor.ZeroPowerBehavior armZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
+
+  private Double armTargetPos = null;
+
+  private double armManualPower = 0.5;
+  private double armSetPositionPower = 0.8;
+
   /**
-   * This function is executed when this Op Mode is selected from the Driver Station.
+   * This function is executed when this Op Mode is selected from the Driver
+   * Station.
    */
   @Override
   public void runOpMode() {
     updateTelemetry();
-    
+
     setState(BotState.Loading);
 
     imu = hardwareMap.get(IMU.class, "imu");
     imu.initialize(
-      new IMU.Parameters(
-        new RevHubOrientationOnRobot(
-          RevHubOrientationOnRobot.LogoFacingDirection.UP,
-          RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
-        )
-      )
-    );
+        new IMU.Parameters(
+            new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD)));
 
     backLeft = hardwareMap.get(DcMotor.class, "back_left");
     backLeft.setDirection(leftWheelDirection);
@@ -88,6 +100,14 @@ public class MainOp extends LinearOpMode {
     frontRight.setDirection(rightWheelDirection);
     frontRight.setZeroPowerBehavior(wheelZeroPowerBehavior);
     frontRight.setMode(wheelRunMode);
+
+    armLeft = hardwareMap.get(DcMotor.class, "arm_left");
+    armLeft.setDirection(armLeftDirection);
+    armLeft.setZeroPowerBehavior(armZeroPowerBehavior);
+
+    armRight = hardwareMap.get(DcMotor.class, "arm_right");
+    armRight.setDirection(armRightDirection);
+    armRight.setZeroPowerBehavior(armZeroPowerBehavior);
 
     setState(BotState.Ready);
 
@@ -114,7 +134,7 @@ public class MainOp extends LinearOpMode {
         if (gamepad1.dpad_up) {
           rawY += dpad_up_down_power;
         }
-        if(gamepad1.dpad_down) {
+        if (gamepad1.dpad_down) {
           rawY -= dpad_up_down_power;
         }
 
@@ -122,7 +142,7 @@ public class MainOp extends LinearOpMode {
         if (gamepad1.dpad_left) {
           rawX -= dpad_left_right_power;
         }
-        if(gamepad1.dpad_right) {
+        if (gamepad1.dpad_right) {
           rawX += dpad_left_right_power;
         }
 
@@ -172,6 +192,23 @@ public class MainOp extends LinearOpMode {
         backRight.setPower(backRightPower);
         frontLeft.setPower(frontLeftPower);
         frontRight.setPower(frontRightPower);
+
+        // Arm Handling
+        // - Not At Target Position
+        if (!isArmAtTarget()) {
+          armLeft.setPower(armSetPositionPower);
+          armRight.setPower(armSetPositionPower);
+        }
+        // - No Target Position - Manual Control
+        else {
+          double armPower = 0;
+
+          armPower += gamepad1.right_trigger;
+          armPower -= gamepad1.left_trigger;
+
+          armLeft.setPower(armPower * armManualPower);
+          armRight.setPower(armPower * armManualPower);
+        }
       }
 
       setState(BotState.Stopped);
@@ -179,26 +216,28 @@ public class MainOp extends LinearOpMode {
       setState(BotState.Cancelled);
     }
   }
-  
+
   private void setState(BotState newState) {
     state = newState;
-    
+
     telemetry.update();
   }
 
   private void updateTelemetry() {
-    telemetry.addData("State", new Func < String > () {
-        @Override public String value() {
-            return state.name();
-        }
+    telemetry.addData("State", new Func<String>() {
+      @Override
+      public String value() {
+        return state.name();
+      }
     });
 
     telemetry.addLine();
-    
+
     telemetry.addLine("--- Bot ---");
     telemetry.addLine();
-    telemetry.addData("Angle", new Func < String > () {
-      @Override public String value() {
+    telemetry.addData("Angle", new Func<String>() {
+      @Override
+      public String value() {
         return round(angles == null ? 0 : angles.getYaw(AngleUnit.DEGREES)) + "°";
       }
     });
@@ -207,26 +246,63 @@ public class MainOp extends LinearOpMode {
 
     telemetry.addLine("--- Headless ---");
     telemetry.addLine();
-    telemetry.addData("Straight Angle", new Func < String > () {
-      @Override public String value() {
+    telemetry.addData("Straight Angle", new Func<String>() {
+      @Override
+      public String value() {
         return round(straightAngle) + "°";
       }
     });
 
     telemetry.addLine();
 
+    telemetry.addLine("--- Arm ---");
+    telemetry.addLine();
+    telemetry.addData("Position", new Func<String>() {
+      @Override
+      public String value() {
+        return round(armLeft.getCurrentPosition()) + " " + round(armRight.getCurrentPosition());
+      }
+    })
+        .addData("Target", new Func<String>() {
+          @Override
+          public String value() {
+            return armTargetPos == null ? "NONE" : round(armTargetPos) + "";
+          }
+        });
+
+    telemetry.addLine();
+
     telemetry.addLine("--- Wheels ---");
     telemetry.addLine();
-    telemetry.addData("Back Forward Correction ", " Left = " + backLeft_forward_correction + ", Right = " + backRight_forward_correction)
-    .addData("Back Strafe Correction     ", " Left = " + backLeft_strafe_correction + ", Right = " + backRight_strafe_correction)
-    .addData("Wheel Direction           ", " Left = " + leftWheelDirection.toString().charAt(0) + ", Right = " + rightWheelDirection.toString().charAt(0))
-    .addData("Zero Power Behavior ", " " + wheelZeroPowerBehavior)
-    .addData("Wheel Run Mode         ", " " + wheelRunMode);
+    telemetry
+        .addData("Back Forward Correction ",
+            " Left = " + backLeft_forward_correction + ", Right = " + backRight_forward_correction)
+        .addData("Back Strafe Correction     ",
+            " Left = " + backLeft_strafe_correction + ", Right = " + backRight_strafe_correction)
+        .addData("Wheel Direction           ",
+            " Left = " + leftWheelDirection.toString().charAt(0) + ", Right = "
+                + rightWheelDirection.toString().charAt(0))
+        .addData("Zero Power Behavior ", " " + wheelZeroPowerBehavior)
+        .addData("Wheel Run Mode         ", " " + wheelRunMode);
 
     telemetry.addLine();
   }
-  
+
   private double round(double value) {
     return Math.round(value * 100) / 100;
+  }
+
+  private boolean isArmAtTarget() {
+    if (armTargetPos == null) {
+      return true;
+    }
+
+    if (Math.round(armLeft.getCurrentPosition() / 10) == Math.round(armTargetPos / 10)) {
+      armTargetPos = null;
+
+      return true;
+    } else {
+      return false;
+    }
   }
 }
