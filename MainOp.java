@@ -5,6 +5,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.Func;
@@ -20,7 +21,8 @@ enum BotState {
 @TeleOp(name = "MainOp")
 public class MainOp extends LinearOpMode {
   // Dynamic Constants
-  private int armIntakePos = 35;
+  private int armIntakePos = 26;
+  private double wristIntakePos = 0.395;
 
   // Bot
   private BotState state;
@@ -65,11 +67,18 @@ public class MainOp extends LinearOpMode {
 
   private Integer armTargetPos = null;
 
-  private double armManualPower = 0.5;
+  private double armManualPower = 0.75;
   private double armSetPositionPower = 0.6;
 
   private double armSetPositionAccuracy /* Lower is higher accuracy */ = 5;
   private double armSetPositionDeadZone = 25;
+
+  // Wrist
+  private Servo wrist;
+  private Servo.Direction wristDirection = Servo.Direction.REVERSE;
+
+  private double wristPos = 1;
+  private double wristPosInterval = 0.002;
 
   /**
    * This function is executed when this Op Mode is selected from the Driver
@@ -115,6 +124,9 @@ public class MainOp extends LinearOpMode {
     armRight = hardwareMap.get(DcMotor.class, "arm_right");
     armRight.setDirection(armRightDirection);
     armRight.setZeroPowerBehavior(armZeroPowerBehavior);
+
+    wrist = hardwareMap.get(Servo.class, "wrist");
+    wrist.setDirection(wristDirection);
 
     armLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     armRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -233,10 +245,25 @@ public class MainOp extends LinearOpMode {
           armRight.setPower(armPower * armManualPower);
         }
 
-        // Arm Intake Position
+        // Wrist Control
+        if (gamepad1.right_bumper) {
+          wristPos += wristPosInterval;
+        }
+        if (gamepad1.left_bumper) {
+          wristPos -= wristPosInterval;
+        }
+
+        // Send Power to Wrist
+        if (wrist.getPosition() != wristPos) {
+          wrist.setPosition(wristPos);
+        }
+
+        // Intake Position
         if (gamepad1.b) {
           setArmPosition(armIntakePos);
+          wristPos = wristIntakePos;
         }
+
       }
 
       setState(BotState.Stopped);
@@ -289,13 +316,19 @@ public class MainOp extends LinearOpMode {
       @Override
       public String value() {
         return armLeft == null || armRight == null ? "0 0"
-            : round(armLeft.getCurrentPosition()) + " " + round(armRight.getCurrentPosition());
+            : armLeft.getCurrentPosition() + " " + armRight.getCurrentPosition();
       }
     })
         .addData("Target", new Func<String>() {
           @Override
           public String value() {
-            return armTargetPos == null ? "NONE" : round(armTargetPos) + "";
+            return armTargetPos == null ? "NONE" : armTargetPos + "";
+          }
+        })
+        .addData("Wrist Pos", new Func<String>() {
+          @Override
+          public String value() {
+            return round(wristPos) + "";
           }
         });
 
@@ -336,7 +369,6 @@ public class MainOp extends LinearOpMode {
   }
 
   private void setArmPosition(int pos) {
-    // armTargetPos = pos;
     armTargetPos = (int) (pos + ((armLeft.getCurrentPosition() - pos) / armSetPositionDeadZone));
   }
 }
