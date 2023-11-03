@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.Func;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 enum BotState {
   Loading,
@@ -20,6 +21,9 @@ enum BotState {
 
 @TeleOp(name = "MainOp")
 public class MainOp extends LinearOpMode {
+  // Gamepad
+  private Gamepad gamepad;
+
   // Dynamic Constants
   private int armIntakePos = 26;
   private double wristIntakePos = 0.395;
@@ -94,6 +98,10 @@ public class MainOp extends LinearOpMode {
    */
   @Override
   public void runOpMode() {
+    if (gamepad == null) {
+      gamepad = gamepad1;
+    }
+
     updateTelemetry();
 
     setState(BotState.Loading);
@@ -160,22 +168,22 @@ public class MainOp extends LinearOpMode {
         telemetry.update();
 
         // Allow Input Changing
-        double rawY = -gamepad1.left_stick_y;
-        double rawX = gamepad1.left_stick_x;
+        double rawY = -gamepad.left_stick_y;
+        double rawX = gamepad.left_stick_x;
 
         // - Up/Down
-        if (gamepad1.dpad_up) {
+        if (gamepad.dpad_up) {
           rawY += dpad_up_down_power;
         }
-        if (gamepad1.dpad_down) {
+        if (gamepad.dpad_down) {
           rawY -= dpad_up_down_power;
         }
 
         // - Left/Right
-        if (gamepad1.dpad_left) {
+        if (gamepad.dpad_left) {
           rawX -= dpad_left_right_power;
         }
-        if (gamepad1.dpad_right) {
+        if (gamepad.dpad_right) {
           rawX += dpad_left_right_power;
         }
 
@@ -192,7 +200,7 @@ public class MainOp extends LinearOpMode {
         double controlY = sin * rawX + cos * rawY;
 
         // Re-straighten Headless
-        if (gamepad1.start) {
+        if (gamepad.start) {
           straightAngle = angles.getYaw(AngleUnit.DEGREES);
         }
 
@@ -215,10 +223,10 @@ public class MainOp extends LinearOpMode {
         frontRightPower -= controlX;
 
         // Turning
-        backLeftPower += gamepad1.right_stick_x;
-        backRightPower -= gamepad1.right_stick_x;
-        frontLeftPower += gamepad1.right_stick_x;
-        frontRightPower -= gamepad1.right_stick_x;
+        backLeftPower += gamepad.right_stick_x;
+        backRightPower -= gamepad.right_stick_x;
+        frontLeftPower += gamepad.right_stick_x;
+        frontRightPower -= gamepad.right_stick_x;
 
         // Send Power to Motors
         backLeft.setPower(backLeftPower);
@@ -249,18 +257,18 @@ public class MainOp extends LinearOpMode {
 
           double armPower = 0;
 
-          armPower += gamepad1.right_trigger;
-          armPower -= gamepad1.left_trigger;
+          armPower += gamepad.right_trigger;
+          armPower -= gamepad.left_trigger;
 
           armLeft.setPower(armPower * armManualPower);
           armRight.setPower(armPower * armManualPower);
         }
 
         // Wrist Control
-        if (gamepad1.right_bumper) {
+        if (gamepad.right_bumper) {
           wristPos += wristPosInterval;
         }
-        if (gamepad1.left_bumper) {
+        if (gamepad.left_bumper) {
           wristPos -= wristPosInterval;
         }
 
@@ -270,10 +278,10 @@ public class MainOp extends LinearOpMode {
         }
 
         // Hand Control
-        if (gamepad1.x) {
+        if (gamepad.x) {
           isHandClosed = true;
         }
-        if (gamepad1.y) {
+        if (gamepad.y) {
           isHandClosed = false;
         }
 
@@ -283,7 +291,7 @@ public class MainOp extends LinearOpMode {
         }
 
         // Intake Position
-        if (gamepad1.b) {
+        if (gamepad.b) {
           setArmPosition(armIntakePos);
           wristPos = wristIntakePos;
           isHandClosed = false;
