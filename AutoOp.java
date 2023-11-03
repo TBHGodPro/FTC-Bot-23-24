@@ -14,8 +14,6 @@ public class AutoOp extends MainOp {
     public void runOpMode() {
         gamepad = new Gamepad();
 
-        gamepad.left_stick_y = 0.3f;
-
         controller = new GamepadController(this, gamepad);
 
         controller.start();
