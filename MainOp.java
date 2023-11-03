@@ -22,7 +22,7 @@ enum BotState {
 @TeleOp(name = "MainOp")
 public class MainOp extends LinearOpMode {
   // Gamepad
-  private Gamepad gamepad;
+  public Gamepad gamepad;
 
   // Dynamic Constants
   private int armIntakePos = 26;
