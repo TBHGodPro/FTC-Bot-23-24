@@ -19,8 +19,12 @@ enum BotState {
 
 @TeleOp(name = "MainOp")
 public class MainOp extends LinearOpMode {
+  // Dynamic Constants
+  private int armIntakePos = 35;
+
   // Bot
   private BotState state;
+  private int imuInitTimeoutMS = 150;
 
   // Sensors
   private IMU imu;
@@ -59,10 +63,13 @@ public class MainOp extends LinearOpMode {
 
   private DcMotor.ZeroPowerBehavior armZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
 
-  private Double armTargetPos = null;
+  private Integer armTargetPos = null;
 
   private double armManualPower = 0.5;
-  private double armSetPositionPower = 0.8;
+  private double armSetPositionPower = 0.6;
+
+  private double armSetPositionAccuracy /* Lower is higher accuracy */ = 5;
+  private double armSetPositionDeadZone = 25;
 
   /**
    * This function is executed when this Op Mode is selected from the Driver
@@ -109,6 +116,9 @@ public class MainOp extends LinearOpMode {
     armRight.setDirection(armRightDirection);
     armRight.setZeroPowerBehavior(armZeroPowerBehavior);
 
+    armLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    armRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
     setState(BotState.Ready);
 
     waitForStart();
@@ -116,7 +126,7 @@ public class MainOp extends LinearOpMode {
     if (opModeIsActive()) {
       setState(BotState.Running);
 
-      sleep(250);
+      sleep(imuInitTimeoutMS);
 
       angles = imu.getRobotYawPitchRollAngles();
 
@@ -196,11 +206,24 @@ public class MainOp extends LinearOpMode {
         // Arm Handling
         // - Not At Target Position
         if (!isArmAtTarget()) {
+          if (armLeft.getTargetPosition() != armTargetPos) {
+            armLeft.setTargetPosition(armTargetPos);
+            armRight.setTargetPosition(armTargetPos);
+          }
+
+          if (armLeft.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
+            armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+          }
+
           armLeft.setPower(armSetPositionPower);
           armRight.setPower(armSetPositionPower);
         }
         // - No Target Position - Manual Control
         else {
+          armLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+          armRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
           double armPower = 0;
 
           armPower += gamepad1.right_trigger;
@@ -208,6 +231,11 @@ public class MainOp extends LinearOpMode {
 
           armLeft.setPower(armPower * armManualPower);
           armRight.setPower(armPower * armManualPower);
+        }
+
+        // Arm Intake Position
+        if (gamepad1.b) {
+          setArmPosition(armIntakePos);
         }
       }
 
@@ -260,7 +288,8 @@ public class MainOp extends LinearOpMode {
     telemetry.addData("Position", new Func<String>() {
       @Override
       public String value() {
-        return round(armLeft.getCurrentPosition()) + " " + round(armRight.getCurrentPosition());
+        return armLeft == null || armRight == null ? "0 0"
+            : round(armLeft.getCurrentPosition()) + " " + round(armRight.getCurrentPosition());
       }
     })
         .addData("Target", new Func<String>() {
@@ -274,9 +303,8 @@ public class MainOp extends LinearOpMode {
 
     telemetry.addLine("--- Wheels ---");
     telemetry.addLine();
-    telemetry
-        .addData("Back Forward Correction ",
-            " Left = " + backLeft_forward_correction + ", Right = " + backRight_forward_correction)
+    telemetry.addData("Back Forward Correction ",
+        " Left = " + backLeft_forward_correction + ", Right = " + backRight_forward_correction)
         .addData("Back Strafe Correction     ",
             " Left = " + backLeft_strafe_correction + ", Right = " + backRight_strafe_correction)
         .addData("Wheel Direction           ",
@@ -297,12 +325,18 @@ public class MainOp extends LinearOpMode {
       return true;
     }
 
-    if (Math.round(armLeft.getCurrentPosition() / 10) == Math.round(armTargetPos / 10)) {
+    if (Math.round(armLeft.getCurrentPosition() / armSetPositionAccuracy) == Math
+        .round(armTargetPos / armSetPositionAccuracy)) {
       armTargetPos = null;
 
       return true;
     } else {
       return false;
     }
+  }
+
+  private void setArmPosition(int pos) {
+    // armTargetPos = pos;
+    armTargetPos = (int) (pos + ((armLeft.getCurrentPosition() - pos) / armSetPositionDeadZone));
   }
 }
