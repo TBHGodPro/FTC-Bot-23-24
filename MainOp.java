@@ -80,6 +80,14 @@ public class MainOp extends LinearOpMode {
   private double wristPos = 1;
   private double wristPosInterval = 0.002;
 
+  // Hand
+  private Servo hand;
+  private Servo.Direction handDirection = Servo.Direction.FORWARD;
+
+  private boolean isHandClosed = false;
+  private double handOpenPos = 0.7;
+  private double handClosedPos = 0.95;
+
   /**
    * This function is executed when this Op Mode is selected from the Driver
    * Station.
@@ -127,6 +135,9 @@ public class MainOp extends LinearOpMode {
 
     wrist = hardwareMap.get(Servo.class, "wrist");
     wrist.setDirection(wristDirection);
+
+    hand = hardwareMap.get(Servo.class, "hand");
+    hand.setDirection(handDirection);
 
     armLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     armRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -258,12 +269,25 @@ public class MainOp extends LinearOpMode {
           wrist.setPosition(wristPos);
         }
 
+        // Hand Control
+        if (gamepad1.x) {
+          isHandClosed = true;
+        }
+        if (gamepad1.y) {
+          isHandClosed = false;
+        }
+
+        // Send Power to Hand
+        if (hand.getPosition() != (isHandClosed ? handClosedPos : handOpenPos)) {
+          hand.setPosition(isHandClosed ? handClosedPos : handOpenPos);
+        }
+
         // Intake Position
         if (gamepad1.b) {
           setArmPosition(armIntakePos);
           wristPos = wristIntakePos;
+          isHandClosed = false;
         }
-
       }
 
       setState(BotState.Stopped);
