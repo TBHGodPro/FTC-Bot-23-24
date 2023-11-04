@@ -5,6 +5,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -30,6 +31,7 @@ public class MainOp extends LinearOpMode {
 
   // Bot
   private BotState state;
+  private int motorResetZeroMS = 150;
   private int imuInitTimeoutMS = 150;
 
   // Sensors
@@ -39,26 +41,32 @@ public class MainOp extends LinearOpMode {
   private double straightAngle;
 
   // Wheels
-  private DcMotor backLeft;
-  private DcMotor backRight;
-  private DcMotor frontLeft;
-  private DcMotor frontRight;
+  private DcMotorEx backLeft;
+  private DcMotorEx backRight;
+  private DcMotorEx frontLeft;
+  private DcMotorEx frontRight;
 
   private double dpad_up_down_power = 0.6;
   private double dpad_left_right_power = 0.4;
 
-  private double backLeft_forward_correction = 0.99;
-  private double backRight_forward_correction = 1.00;
+  public double backLeft_forward_correction = 0.99;
+  public double backRight_forward_correction = 1.00;
 
-  private double backLeft_strafe_correction = 0.7;
-  private double backRight_strafe_correction = 0.7;
+  public double backLeft_strafe_correction = 0.85;
+  public double backRight_strafe_correction = 0.8;
 
   private DcMotor.Direction leftWheelDirection = DcMotor.Direction.REVERSE;
   private DcMotor.Direction rightWheelDirection = DcMotor.Direction.FORWARD;
 
   private DcMotor.ZeroPowerBehavior wheelZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
 
-  private DcMotor.RunMode wheelRunMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER;
+  private Integer backLeftTargetPos = null;
+  private Integer backRightTargetPos = null;
+  private Integer frontLeftTargetPos = null;
+  private Integer frontRightTargetPos = null;
+  private Double wheelSetPositionTargetTime = null;
+
+  private double wheelSetPositionPower = 0.4;
 
   // Arm
   private DcMotor armLeft;
@@ -113,25 +121,23 @@ public class MainOp extends LinearOpMode {
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
                 RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD)));
 
-    backLeft = hardwareMap.get(DcMotor.class, "back_left");
+    backLeft = hardwareMap.get(DcMotorEx.class, "back_left");
     backLeft.setDirection(leftWheelDirection);
     backLeft.setZeroPowerBehavior(wheelZeroPowerBehavior);
-    backLeft.setMode(wheelRunMode);
 
-    backRight = hardwareMap.get(DcMotor.class, "back_right");
+    backRight = hardwareMap.get(DcMotorEx.class, "back_right");
     backRight.setDirection(rightWheelDirection);
     backRight.setZeroPowerBehavior(wheelZeroPowerBehavior);
-    backRight.setMode(wheelRunMode);
 
-    frontLeft = hardwareMap.get(DcMotor.class, "front_left");
+    frontLeft = hardwareMap.get(DcMotorEx.class, "front_left");
     frontLeft.setDirection(leftWheelDirection);
     frontLeft.setZeroPowerBehavior(wheelZeroPowerBehavior);
-    frontLeft.setMode(wheelRunMode);
 
-    frontRight = hardwareMap.get(DcMotor.class, "front_right");
+    frontRight = hardwareMap.get(DcMotorEx.class, "front_right");
     frontRight.setDirection(rightWheelDirection);
     frontRight.setZeroPowerBehavior(wheelZeroPowerBehavior);
-    frontRight.setMode(wheelRunMode);
+
+    resetWheelPositions();
 
     armLeft = hardwareMap.get(DcMotor.class, "arm_left");
     armLeft.setDirection(armLeftDirection);
@@ -229,10 +235,17 @@ public class MainOp extends LinearOpMode {
         frontRightPower -= gamepad.right_stick_x;
 
         // Send Power to Motors
-        backLeft.setPower(backLeftPower);
-        backRight.setPower(backRightPower);
-        frontLeft.setPower(frontLeftPower);
-        frontRight.setPower(frontRightPower);
+        if (isWheelAtTarget()) {
+          backLeft.setPower(backLeftPower);
+          backRight.setPower(backRightPower);
+          frontLeft.setPower(frontLeftPower);
+          frontRight.setPower(frontRightPower);
+        } else {
+          backLeft.setVelocity(Math.abs(backLeftTargetPos) / wheelSetPositionTargetTime);
+          backRight.setVelocity(Math.abs(backRightTargetPos) / wheelSetPositionTargetTime);
+          frontLeft.setVelocity(Math.abs(frontLeftTargetPos) / wheelSetPositionTargetTime);
+          frontRight.setVelocity(Math.abs(frontRightTargetPos) / wheelSetPositionTargetTime);
+        }
 
         // Arm Handling
         // - Not At Target Position
@@ -376,7 +389,30 @@ public class MainOp extends LinearOpMode {
             " Left = " + leftWheelDirection.toString().charAt(0) + ", Right = "
                 + rightWheelDirection.toString().charAt(0))
         .addData("Zero Power Behavior ", " " + wheelZeroPowerBehavior)
-        .addData("Wheel Run Mode         ", " " + wheelRunMode);
+        .addData("Target Position ", new Func<String>() {
+          @Override
+          public String value() {
+            return backLeftTargetPos == null ? ""
+                : " " + backLeftTargetPos + " " + backRightTargetPos + " " + frontLeftTargetPos + " "
+                    + frontRightTargetPos;
+          }
+        })
+        .addData("Set Target Position ", new Func<String>() {
+          @Override
+          public String value() {
+            return backLeft == null ? ""
+                : " " + backLeft.getTargetPosition() + " " + backRight.getTargetPosition() + " "
+                    + frontLeft.getTargetPosition() + " " + frontRight.getTargetPosition();
+          }
+        })
+        .addData("Position ", new Func<String>() {
+          @Override
+          public String value() {
+            return backLeft == null ? ""
+                : " " + backLeft.getCurrentPosition() + " " + backRight.getCurrentPosition() + " "
+                    + frontLeft.getCurrentPosition() + " " + frontRight.getCurrentPosition();
+          }
+        });
 
     telemetry.addLine();
   }
@@ -385,7 +421,7 @@ public class MainOp extends LinearOpMode {
     return Math.round(value * 100) / 100;
   }
 
-  private boolean isArmAtTarget() {
+  public boolean isArmAtTarget() {
     if (armTargetPos == null) {
       return true;
     }
@@ -400,7 +436,108 @@ public class MainOp extends LinearOpMode {
     }
   }
 
-  private void setArmPosition(int pos) {
+  public void setArmPosition(int pos) {
     armTargetPos = (int) (pos + ((armLeft.getCurrentPosition() - pos) / armSetPositionDeadZone));
+  }
+
+  public boolean isWheelAtTarget() {
+    if (backLeftTargetPos == null || backRightTargetPos == null || frontLeftTargetPos == null
+        || frontRightTargetPos == null || wheelSetPositionTargetTime == null) {
+      backLeftTargetPos = null;
+      backRightTargetPos = null;
+      frontLeftTargetPos = null;
+      frontRightTargetPos = null;
+
+      wheelSetPositionTargetTime = null;
+
+      return true;
+    }
+
+    boolean isBackLeftDone = false;
+    boolean isBackRightDone = false;
+    boolean isFrontLeftDone = false;
+    boolean isFrontRightDone = false;
+
+    if ((backLeftTargetPos > 0 && backLeftTargetPos <= backLeft.getCurrentPosition())
+        || (backLeftTargetPos < 0 && backLeftTargetPos >= backLeft.getCurrentPosition())
+        || (backLeftTargetPos == 0)) {
+      isBackLeftDone = true;
+    }
+    if ((backRightTargetPos > 0 && backRightTargetPos <= backRight.getCurrentPosition())
+        || (backRightTargetPos < 0 && backRightTargetPos >= backRight.getCurrentPosition())
+        || (backRightTargetPos == 0)) {
+      isBackRightDone = true;
+    }
+    if ((frontLeftTargetPos > 0 && frontLeftTargetPos <= frontLeft.getCurrentPosition())
+        || (frontLeftTargetPos < 0 && frontLeftTargetPos >= frontLeft.getCurrentPosition())
+        || (frontLeftTargetPos == 0)) {
+      isFrontLeftDone = true;
+    }
+    if ((frontRightTargetPos > 0 && frontRightTargetPos <= frontRight.getCurrentPosition())
+        || (frontRightTargetPos < 0 && frontRightTargetPos >= frontRight.getCurrentPosition())
+        || (frontRightTargetPos == 0)) {
+      isFrontRightDone = true;
+    }
+
+    if (isBackLeftDone && isBackRightDone && isFrontLeftDone && isFrontRightDone) {
+      backLeftTargetPos = null;
+      backRightTargetPos = null;
+      frontLeftTargetPos = null;
+      frontRightTargetPos = null;
+
+      wheelSetPositionTargetTime = null;
+
+      return true;
+    }
+
+    if (backLeft.getTargetPosition() != backLeftTargetPos) {
+      backLeft.setTargetPosition(backLeftTargetPos);
+      backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+    if (backRight.getTargetPosition() != backRightTargetPos) {
+      backRight.setTargetPosition(backRightTargetPos);
+      backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+    if (frontLeft.getTargetPosition() != frontLeftTargetPos) {
+      frontLeft.setTargetPosition(frontLeftTargetPos);
+      frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+    if (frontRight.getTargetPosition() != frontRightTargetPos) {
+      frontRight.setTargetPosition(frontRightTargetPos);
+      frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    return false;
+  }
+
+  public void setWheelTargets(double targetTime, int backLeftPos, int backRightPos, int frontLeftPos,
+      int frontRightPos) {
+    resetWheelPositions();
+
+    wheelSetPositionTargetTime = targetTime;
+
+    backLeftTargetPos = Math.round(backLeftPos);
+    backRightTargetPos = Math.round(backRightPos);
+    frontLeftTargetPos = Math.round(frontLeftPos);
+    frontRightTargetPos = Math.round(frontRightPos);
+  }
+
+  public void resetWheelPositions() {
+    backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+    backLeft.setTargetPosition(0);
+    backRight.setTargetPosition(0);
+    frontLeft.setTargetPosition(0);
+    frontRight.setTargetPosition(0);
+
+    sleep(motorResetZeroMS);
+
+    backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
   }
 }
