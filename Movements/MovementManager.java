@@ -29,10 +29,10 @@ public class MovementManager {
     public Action[] actions = {
             // ACTIONS HERE
 
-            new MoveAction(MoveDirection.FORWARD, 2000, 1.5),
-            new MoveAction(MoveDirection.LEFT, 500, 0.8),
-            new MoveAction(MoveDirection.BACKWARD, 2000, 1.5),
-            new TurnAction(45, 2)
+            new MoveAction(MoveDirection.FORWARD, 900, 0.5),
+            new MoveAction(MoveDirection.LEFT, 500, 0.5),
+            new MoveAction(MoveDirection.BACKWARD, 900, 0.5),
+            new TurnAction(70, 1)
 
             // ACTIONS HERE
     };

@@ -28,6 +28,8 @@ class AutonomousController extends Thread {
     public AutoOp op;
     public Gamepad gamepad;
 
+    private double turn_mult = 12.825;
+
     AutonomousController(AutoOp activeOp, Gamepad activeGamepad) {
         op = activeOp;
         gamepad = activeGamepad;
@@ -78,10 +80,18 @@ class AutonomousController extends Thread {
 
                     while (op.wheelSetPositionTargetTime != null && op.opModeIsActive()) {
                     }
+
                     break;
                 }
 
                 case TURN: {
+                    op.setWheelTargets(action.time, (int) (action.degrees * turn_mult),
+                            -((int) (action.degrees * turn_mult)),
+                            (int) (action.degrees * turn_mult), -((int) (action.degrees * turn_mult)));
+
+                    while (op.wheelSetPositionTargetTime != null && op.opModeIsActive()) {
+                    }
+
                     break;
                 }
             }
