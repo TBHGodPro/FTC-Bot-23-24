@@ -69,21 +69,20 @@ public class MainOp extends LinearOpMode {
   private double wheelSetPositionPower = 0.4;
 
   // Arm
-  private DcMotor armLeft;
+  private DcMotorEx armLeft;
   private DcMotor.Direction armLeftDirection = DcMotor.Direction.FORWARD;
 
-  private DcMotor armRight;
+  private DcMotorEx armRight;
   private DcMotor.Direction armRightDirection = DcMotor.Direction.REVERSE;
 
   private DcMotor.ZeroPowerBehavior armZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
 
   private Integer armTargetPos = null;
+  private int armSetPosSpeed = 500;
 
   private double armManualPower = 0.75;
-  private double armSetPositionPower = 0.6;
 
-  private double armSetPositionAccuracy /* Lower is higher accuracy */ = 5;
-  private double armSetPositionDeadZone = 25;
+  private double armSetPositionAccuracy /* Lower is higher accuracy */ = 3.5;
 
   // Wrist
   private Servo wrist;
@@ -139,11 +138,11 @@ public class MainOp extends LinearOpMode {
 
     resetWheelPositions();
 
-    armLeft = hardwareMap.get(DcMotor.class, "arm_left");
+    armLeft = hardwareMap.get(DcMotorEx.class, "arm_left");
     armLeft.setDirection(armLeftDirection);
     armLeft.setZeroPowerBehavior(armZeroPowerBehavior);
 
-    armRight = hardwareMap.get(DcMotor.class, "arm_right");
+    armRight = hardwareMap.get(DcMotorEx.class, "arm_right");
     armRight.setDirection(armRightDirection);
     armRight.setZeroPowerBehavior(armZeroPowerBehavior);
 
@@ -260,8 +259,8 @@ public class MainOp extends LinearOpMode {
             armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
           }
 
-          armLeft.setPower(armSetPositionPower);
-          armRight.setPower(armSetPositionPower);
+          armLeft.setVelocity(armSetPosSpeed);
+          armRight.setVelocity(armSetPosSpeed);
         }
         // - No Target Position - Manual Control
         else {
@@ -437,7 +436,7 @@ public class MainOp extends LinearOpMode {
   }
 
   public void setArmPosition(int pos) {
-    armTargetPos = (int) (pos + ((armLeft.getCurrentPosition() - pos) / armSetPositionDeadZone));
+    armTargetPos = pos;
   }
 
   public boolean isWheelAtTarget() {
