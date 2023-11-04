@@ -40,6 +40,8 @@ class AutonomousController extends Thread {
 
         movements.resetActions();
 
+        op.isHandClosed = true;
+
         op.waitForStart();
 
         while (movements.getCurrentAction() != null && op.opModeIsActive()) {
@@ -90,6 +92,15 @@ class AutonomousController extends Thread {
                             (int) (action.degrees * turn_mult), -((int) (action.degrees * turn_mult)));
 
                     while (op.wheelSetPositionTargetTime != null && op.opModeIsActive()) {
+                    }
+
+                    break;
+                }
+
+                case GAMEPAD: {
+                    try {
+                        gamepad.getClass().getDeclaredField(action.button.name()).set(gamepad, action.active);
+                    } catch (Exception e) {
                     }
 
                     break;

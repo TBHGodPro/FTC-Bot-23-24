@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Movements;
 import org.firstinspires.ftc.teamcode.Movements.ActionType;
 import org.firstinspires.ftc.teamcode.Movements.Action;
 import org.firstinspires.ftc.teamcode.Movements.MoveDirection;
+import org.firstinspires.ftc.teamcode.Movements.GamepadButton;
 
 class MoveAction extends Action {
     public MoveAction(MoveDirection moveDirection, int moveSteps, double moveTime) {
@@ -25,6 +26,15 @@ class TurnAction extends Action {
     }
 }
 
+class GamepadAction extends Action {
+    public GamepadAction(GamepadButton gamepadButton, boolean isActive) {
+        type = ActionType.GAMEPAD;
+
+        button = gamepadButton;
+        active = isActive;
+    }
+}
+
 public class MovementManager {
     public Action[] actions = {
             // ACTIONS HERE
@@ -32,7 +42,8 @@ public class MovementManager {
             new MoveAction(MoveDirection.FORWARD, 900, 0.5),
             new MoveAction(MoveDirection.LEFT, 500, 0.5),
             new MoveAction(MoveDirection.BACKWARD, 900, 0.5),
-            new TurnAction(70, 1)
+            new TurnAction(70, 1),
+            new GamepadAction(GamepadButton.b, true)
 
             // ACTIONS HERE
     };

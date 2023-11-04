@@ -95,7 +95,7 @@ public class MainOp extends LinearOpMode {
   private Servo hand;
   private Servo.Direction handDirection = Servo.Direction.FORWARD;
 
-  private boolean isHandClosed = false;
+  public boolean isHandClosed = false;
   private double handOpenPos = 0.7;
   private double handClosedPos = 0.95;
 
@@ -161,6 +161,8 @@ public class MainOp extends LinearOpMode {
 
     if (opModeIsActive()) {
       setState(BotState.Running);
+
+      hand.setPosition(isHandClosed ? handClosedPos : handOpenPos);
 
       sleep(imuInitTimeoutMS);
 
