@@ -453,43 +453,6 @@ public class MainOp extends LinearOpMode {
       return true;
     }
 
-    boolean isBackLeftDone = false;
-    boolean isBackRightDone = false;
-    boolean isFrontLeftDone = false;
-    boolean isFrontRightDone = false;
-
-    if ((backLeftTargetPos > 0 && backLeftTargetPos <= backLeft.getCurrentPosition())
-        || (backLeftTargetPos < 0 && backLeftTargetPos >= backLeft.getCurrentPosition())
-        || (backLeftTargetPos == 0)) {
-      isBackLeftDone = true;
-    }
-    if ((backRightTargetPos > 0 && backRightTargetPos <= backRight.getCurrentPosition())
-        || (backRightTargetPos < 0 && backRightTargetPos >= backRight.getCurrentPosition())
-        || (backRightTargetPos == 0)) {
-      isBackRightDone = true;
-    }
-    if ((frontLeftTargetPos > 0 && frontLeftTargetPos <= frontLeft.getCurrentPosition())
-        || (frontLeftTargetPos < 0 && frontLeftTargetPos >= frontLeft.getCurrentPosition())
-        || (frontLeftTargetPos == 0)) {
-      isFrontLeftDone = true;
-    }
-    if ((frontRightTargetPos > 0 && frontRightTargetPos <= frontRight.getCurrentPosition())
-        || (frontRightTargetPos < 0 && frontRightTargetPos >= frontRight.getCurrentPosition())
-        || (frontRightTargetPos == 0)) {
-      isFrontRightDone = true;
-    }
-
-    if (isBackLeftDone && isBackRightDone && isFrontLeftDone && isFrontRightDone) {
-      backLeftTargetPos = null;
-      backRightTargetPos = null;
-      frontLeftTargetPos = null;
-      frontRightTargetPos = null;
-
-      wheelSetPositionTargetTime = null;
-
-      return true;
-    }
-
     if (backLeft.getTargetPosition() != backLeftTargetPos) {
       backLeft.setTargetPosition(backLeftTargetPos);
       backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -505,6 +468,17 @@ public class MainOp extends LinearOpMode {
     if (frontRight.getTargetPosition() != frontRightTargetPos) {
       frontRight.setTargetPosition(frontRightTargetPos);
       frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    if (!backLeft.isBusy() && !backRight.isBusy() && !frontLeft.isBusy() && !frontRight.isBusy()) {
+      backLeftTargetPos = null;
+      backRightTargetPos = null;
+      frontLeftTargetPos = null;
+      frontRightTargetPos = null;
+
+      wheelSetPositionTargetTime = null;
+
+      return true;
     }
 
     return false;
