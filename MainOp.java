@@ -64,7 +64,7 @@ public class MainOp extends LinearOpMode {
   private Integer backRightTargetPos = null;
   private Integer frontLeftTargetPos = null;
   private Integer frontRightTargetPos = null;
-  private Double wheelSetPositionTargetTime = null;
+  public Double wheelSetPositionTargetTime = null;
 
   private double wheelSetPositionPower = 0.4;
 

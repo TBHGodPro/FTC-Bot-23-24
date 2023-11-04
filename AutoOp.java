@@ -76,7 +76,7 @@ class AutonomousController extends Thread {
                         }
                     }
 
-                    while (!op.isWheelAtTarget() && op.opModeIsActive() && false) {
+                    while (op.wheelSetPositionTargetTime != null && op.opModeIsActive()) {
                     }
                     break;
                 }

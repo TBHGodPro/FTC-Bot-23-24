@@ -30,6 +30,8 @@ public class MovementManager {
             // ACTIONS HERE
 
             new MoveAction(MoveDirection.FORWARD, 2000, 1.5),
+            new MoveAction(MoveDirection.LEFT, 500, 0.8),
+            new MoveAction(MoveDirection.BACKWARD, 2000, 1.5),
             new TurnAction(45, 2)
 
             // ACTIONS HERE
