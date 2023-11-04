@@ -48,16 +48,26 @@ class AutonomousController extends Thread {
             Action action = movements.getCurrentAction();
 
             switch (action.type) {
+                case WAIT: {
+                    try {
+                        Thread.sleep(action.timeLong);
+                    } catch (Exception e) {
+                    }
+
+                    break;
+                }
+
                 case MOVE: {
                     switch (action.direction) {
                         case FORWARD: {
-                            op.setWheelTargets(action.time, (int) (action.steps * op.backLeft_forward_correction),
+                            op.setWheelTargets(action.timeDouble, (int) (action.steps * op.backLeft_forward_correction),
                                     (int) (action.steps * op.backRight_forward_correction), action.steps, action.steps);
 
                             break;
                         }
                         case BACKWARD: {
-                            op.setWheelTargets(action.time, -((int) (action.steps * op.backLeft_forward_correction)),
+                            op.setWheelTargets(action.timeDouble,
+                                    -((int) (action.steps * op.backLeft_forward_correction)),
                                     -((int) (action.steps * op.backRight_forward_correction)), -action.steps,
                                     -action.steps);
 
@@ -65,14 +75,15 @@ class AutonomousController extends Thread {
                         }
 
                         case LEFT: {
-                            op.setWheelTargets(action.time, (int) (action.steps * op.backLeft_strafe_correction),
+                            op.setWheelTargets(action.timeDouble, (int) (action.steps * op.backLeft_strafe_correction),
                                     -((int) (action.steps * op.backRight_strafe_correction)), -action.steps,
                                     action.steps);
 
                             break;
                         }
                         case RIGHT: {
-                            op.setWheelTargets(action.time, -((int) (action.steps * op.backLeft_strafe_correction)),
+                            op.setWheelTargets(action.timeDouble,
+                                    -((int) (action.steps * op.backLeft_strafe_correction)),
                                     (int) (action.steps * op.backRight_strafe_correction), action.steps,
                                     -action.steps);
 
@@ -87,7 +98,7 @@ class AutonomousController extends Thread {
                 }
 
                 case TURN: {
-                    op.setWheelTargets(action.time, (int) (action.degrees * turn_mult),
+                    op.setWheelTargets(action.timeDouble, (int) (action.degrees * turn_mult),
                             -((int) (action.degrees * turn_mult)),
                             (int) (action.degrees * turn_mult), -((int) (action.degrees * turn_mult)));
 
@@ -99,7 +110,10 @@ class AutonomousController extends Thread {
 
                 case GAMEPAD: {
                     try {
-                        gamepad.getClass().getDeclaredField(action.button.name()).set(gamepad, action.active);
+                        gamepad.getClass()
+                                .getDeclaredField(action.isDynamic ? action.input.name() : action.button.name())
+                                .set(gamepad,
+                                        action.isDynamic ? action.value : action.active);
                     } catch (Exception e) {
                     }
 
