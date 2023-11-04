@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import java.lang.Thread;
+import java.lang.reflect.Field;
 
 import org.firstinspires.ftc.teamcode.MainOp;
 
@@ -39,6 +40,8 @@ class AutonomousController extends Thread {
         MovementManager movements = new MovementManager();
 
         movements.resetActions();
+
+        op.shouldOpenHandAtIntake = false;
 
         op.isHandClosed = true;
 
@@ -110,10 +113,28 @@ class AutonomousController extends Thread {
 
                 case GAMEPAD: {
                     try {
-                        gamepad.getClass()
-                                .getDeclaredField(action.isDynamic ? action.input.name() : action.button.name())
-                                .set(gamepad,
-                                        action.isDynamic ? action.value : action.active);
+                        Field field;
+
+                        if (action.isDynamic) {
+                            field = gamepad.getClass().getDeclaredField(action.input.name());
+
+                            field.set(gamepad, action.value);
+                        } else {
+                            field = gamepad.getClass().getDeclaredField(action.button.name());
+
+                            if (action.active == null) {
+                                field.set(gamepad, true);
+
+                                try {
+                                    Thread.sleep(movements.button_tap_timeout);
+                                } catch (Exception e) {
+                                }
+
+                                field.set(gamepad, false);
+                            } else {
+                                field.set(gamepad, action.active);
+                            }
+                        }
                     } catch (Exception e) {
                     }
 

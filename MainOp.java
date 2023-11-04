@@ -28,6 +28,7 @@ public class MainOp extends LinearOpMode {
   // Dynamic Constants
   private int armIntakePos = 26;
   private double wristIntakePos = 0.395;
+  public boolean shouldOpenHandAtIntake = true;
 
   // Bot
   private BotState state;
@@ -308,7 +309,9 @@ public class MainOp extends LinearOpMode {
         if (gamepad.b) {
           setArmPosition(armIntakePos);
           wristPos = wristIntakePos;
-          isHandClosed = false;
+          if (shouldOpenHandAtIntake) {
+            isHandClosed = false;
+          }
         }
       }
 

@@ -45,6 +45,14 @@ class GamepadAction extends Action {
         active = isActive;
     }
 
+    public GamepadAction(GamepadButton gamepadButton) {
+        type = ActionType.GAMEPAD;
+
+        isDynamic = false;
+
+        button = gamepadButton;
+    }
+
     public GamepadAction(GamepadDynamicInput gamepadInput, float inputValue) {
         type = ActionType.GAMEPAD;
 
@@ -63,9 +71,9 @@ public class MovementManager {
             new MoveAction(MoveDirection.LEFT, 500, 0.5),
             new MoveAction(MoveDirection.BACKWARD, 900, 0.5),
             new TurnAction(70, 1),
-            new GamepadAction(GamepadButton.b, true),
-            new WaitAction(150),
-            new GamepadAction(GamepadButton.b, false),
+            new GamepadAction(GamepadButton.b),
+            new WaitAction(100),
+            new GamepadAction(GamepadButton.y),
             new GamepadAction(GamepadDynamicInput.right_trigger, 0.5f),
             new WaitAction(2000),
             new GamepadAction(GamepadDynamicInput.right_trigger, 0f),
@@ -86,4 +94,6 @@ public class MovementManager {
     public void setCurrentActionCompleted() {
         currentActionIndex += 1;
     }
+
+    public long button_tap_timeout = 500;
 }
