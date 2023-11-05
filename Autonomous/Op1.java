@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Movements.Actions.*;
 
 @Autonomous(name = "Auto Op 1")
 public class Op1 extends AutoOp {
-    public Action[] movements = {
+    public static final Action[] movements = {
             // ACTIONS HERE
 
             new MoveAction(MoveDirection.FORWARD, 900, 0.5),
@@ -25,4 +25,8 @@ public class Op1 extends AutoOp {
 
             // ACTIONS HERE
     };
+
+    public Op1() {
+        super(movements);
+    }
 }

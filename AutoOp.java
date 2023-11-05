@@ -10,9 +10,13 @@ import java.lang.Thread;
 import java.lang.reflect.Field;
 
 public class AutoOp extends MainOp {
-    public Action[] movements = {};
+    public Action[] movements;
 
-    AutonomousController controller;
+    public AutonomousController controller;
+
+    public AutoOp(Action[] movements) {
+        this.movements = movements;
+    }
 
     @Override
     public void runOpMode() {
