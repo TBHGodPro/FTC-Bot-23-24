@@ -1,16 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import java.lang.Thread;
-import java.lang.reflect.Field;
-
 import org.firstinspires.ftc.teamcode.MainOp;
 
 import org.firstinspires.ftc.teamcode.Movements.*;
 
-@Autonomous(name = "AutoOp")
+import com.qualcomm.robotcore.hardware.Gamepad;
+
+import java.lang.Thread;
+import java.lang.reflect.Field;
+
 public class AutoOp extends MainOp {
+    public Action[] movements = {};
+
     AutonomousController controller;
 
     @Override
@@ -37,7 +38,7 @@ class AutonomousController extends Thread {
     }
 
     public void run() {
-        MovementManager movements = new MovementManager();
+        MovementManager movements = new MovementManager(op.movements);
 
         movements.resetActions();
 
