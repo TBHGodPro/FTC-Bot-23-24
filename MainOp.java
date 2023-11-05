@@ -26,8 +26,8 @@ public class MainOp extends LinearOpMode {
   public Gamepad gamepad;
 
   // Dynamic Constants
-  private int armIntakePos = 26;
-  private double wristIntakePos = 0.395;
+  private int armIntakePos = 32;
+  private double wristIntakePos = 0.35;
   public boolean shouldOpenHandAtIntake = true;
 
   // Bot

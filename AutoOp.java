@@ -47,15 +47,14 @@ class AutonomousController extends Thread {
 
         op.waitForStart();
 
+        waitTime(500);
+
         while (movements.getCurrentAction() != null && op.opModeIsActive()) {
             Action action = movements.getCurrentAction();
 
             switch (action.type) {
                 case WAIT: {
-                    try {
-                        Thread.sleep(action.timeLong);
-                    } catch (Exception e) {
-                    }
+                    waitTime(action.timeLong);
 
                     break;
                 }
@@ -125,10 +124,7 @@ class AutonomousController extends Thread {
                             if (action.active == null) {
                                 field.set(gamepad, true);
 
-                                try {
-                                    Thread.sleep(movements.button_tap_timeout);
-                                } catch (Exception e) {
-                                }
+                                waitTime(movements.button_tap_timeout);
 
                                 field.set(gamepad, false);
                             } else {
@@ -143,6 +139,14 @@ class AutonomousController extends Thread {
             }
 
             movements.setCurrentActionCompleted();
+        }
+    }
+
+    private void waitTime(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (Exception e) {
+
         }
     }
 }
