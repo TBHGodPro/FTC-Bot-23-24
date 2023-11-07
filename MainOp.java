@@ -27,13 +27,13 @@ public class MainOp extends LinearOpMode {
   public Gamepad gamepad;
 
   // Dynamic Constants
-  private int armIntakePos = 32;
+  private int armIntakePos = 180;
   private double wristIntakePos = 0.35;
   public boolean shouldOpenHandAtIntake = true;
 
   // Bot
   private BotState state;
-  private int motorResetZeroMS = 150;
+  private int motorResetZeroMS = 100;
   private int imuInitTimeoutMS = 150;
 
   // Sensors
@@ -71,18 +71,17 @@ public class MainOp extends LinearOpMode {
   private double wheelSetPositionPower = 0.4;
 
   // Arm
-  private DcMotorEx armLeft;
-  private DcMotor.Direction armLeftDirection = DcMotor.Direction.FORWARD;
-
-  private DcMotorEx armRight;
-  private DcMotor.Direction armRightDirection = DcMotor.Direction.REVERSE;
+  private DcMotorEx arm;
+  private DcMotor.Direction armDirection = DcMotor.Direction.REVERSE;
 
   private DcMotor.ZeroPowerBehavior armZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
+  
+  private int armVerticalPos = 1550;
 
   private Integer armTargetPos = null;
-  private int armSetPosSpeed = 500;
+  private int armSetPosSpeed = 1800;
 
-  private double armManualPower = 0.75;
+  private double armManualMaxSpeed = 2200;
 
   private double armSetPositionAccuracy /* Lower is higher accuracy */ = 3.5;
 
@@ -140,13 +139,9 @@ public class MainOp extends LinearOpMode {
 
     resetWheelPositions();
 
-    armLeft = hardwareMap.get(DcMotorEx.class, "arm_left");
-    armLeft.setDirection(armLeftDirection);
-    armLeft.setZeroPowerBehavior(armZeroPowerBehavior);
-
-    armRight = hardwareMap.get(DcMotorEx.class, "arm_right");
-    armRight.setDirection(armRightDirection);
-    armRight.setZeroPowerBehavior(armZeroPowerBehavior);
+    arm = hardwareMap.get(DcMotorEx.class, "arm");
+    arm.setDirection(armDirection);
+    arm.setZeroPowerBehavior(armZeroPowerBehavior);
 
     wrist = hardwareMap.get(Servo.class, "wrist");
     wrist.setDirection(wristDirection);
@@ -154,8 +149,7 @@ public class MainOp extends LinearOpMode {
     hand = hardwareMap.get(Servo.class, "hand");
     hand.setDirection(handDirection);
 
-    armLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    armRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
     setState(BotState.Ready);
 
@@ -253,31 +247,31 @@ public class MainOp extends LinearOpMode {
         // Arm Handling
         // - Not At Target Position
         if (!isArmAtTarget()) {
-          if (armLeft.getTargetPosition() != armTargetPos) {
-            armLeft.setTargetPosition(armTargetPos);
-            armRight.setTargetPosition(armTargetPos);
+          if (arm.getTargetPosition() != armTargetPos) {
+            arm.setTargetPosition(armTargetPos);
           }
 
-          if (armLeft.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
-            armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+          if (arm.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
           }
 
-          armLeft.setVelocity(armSetPosSpeed);
-          armRight.setVelocity(armSetPosSpeed);
+          arm.setVelocity(armSetPosSpeed);
         }
         // - No Target Position - Manual Control
         else {
-          armLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-          armRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+          arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
           double armPower = 0;
 
           armPower += gamepad.right_trigger;
           armPower -= gamepad.left_trigger;
-
-          armLeft.setPower(armPower * armManualPower);
-          armRight.setPower(armPower * armManualPower);
+          
+          // Static Pos Power
+          if (armPower == 0) {
+            arm.setVelocity(arm.getCurrentPosition() > armVerticalPos ? -1 : 1);
+          } else {
+            arm.setVelocity(armPower * armManualMaxSpeed);
+          }
         }
 
         // Wrist Control
@@ -291,7 +285,7 @@ public class MainOp extends LinearOpMode {
         // Send Power to Wrist
         if (wrist.getPosition() != wristPos) {
           wrist.setPosition(wristPos);
-        }
+        } 
 
         // Hand Control
         if (gamepad.x) {
@@ -365,8 +359,8 @@ public class MainOp extends LinearOpMode {
     telemetry.addData("Position", new Func<String>() {
       @Override
       public String value() {
-        return armLeft == null || armRight == null ? "0 0"
-            : armLeft.getCurrentPosition() + " " + armRight.getCurrentPosition();
+        return arm == null ? "0"
+            : arm.getCurrentPosition() + "";
       }
     })
         .addData("Target", new Func<String>() {
@@ -431,7 +425,7 @@ public class MainOp extends LinearOpMode {
       return true;
     }
 
-    if (Math.round(armLeft.getCurrentPosition() / armSetPositionAccuracy) == Math
+    if (Math.round(arm.getCurrentPosition() / armSetPositionAccuracy) == Math
         .round(armTargetPos / armSetPositionAccuracy)) {
       armTargetPos = null;
 

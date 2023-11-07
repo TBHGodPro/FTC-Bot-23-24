@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.MainOp;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.Movements.*;
 
@@ -9,12 +10,12 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import java.lang.Thread;
 import java.lang.reflect.Field;
 
-public class AutoOp extends MainOp {
+public class AutoOpOrig extends MainOp {
     public Action[] movements;
 
     public AutonomousController controller;
 
-    public AutoOp(Action[] movements) {
+    public AutoOpOrig(Action[] movements) {
         this.movements = movements;
     }
 
