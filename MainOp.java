@@ -75,7 +75,7 @@ public class MainOp extends LinearOpMode {
   private DcMotor.Direction armDirection = DcMotor.Direction.REVERSE;
 
   private DcMotor.ZeroPowerBehavior armZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
-  
+
   private int armVerticalPos = 1550;
 
   private Integer armTargetPos = null;
@@ -265,7 +265,7 @@ public class MainOp extends LinearOpMode {
 
           armPower += gamepad.right_trigger;
           armPower -= gamepad.left_trigger;
-          
+
           // Static Pos Power
           if (armPower == 0) {
             arm.setVelocity(arm.getCurrentPosition() > armVerticalPos ? -1 : 1);
@@ -285,7 +285,7 @@ public class MainOp extends LinearOpMode {
         // Send Power to Wrist
         if (wrist.getPosition() != wristPos) {
           wrist.setPosition(wristPos);
-        } 
+        }
 
         // Hand Control
         if (gamepad.x) {
