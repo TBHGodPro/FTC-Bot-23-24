@@ -1,34 +1,44 @@
 package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.MainOp;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import org.firstinspires.ftc.teamcode.Movements.*;
+import org.firstinspires.ftc.teamcode.Camera.*;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import java.lang.Thread;
 import java.lang.reflect.Field;
 
-public class AutoOpOrig extends MainOp {
-    public Action[] movements;
-
+public abstract class AutoOp extends MainOp {
     public AutonomousController controller;
-
-    public AutoOpOrig(Action[] movements) {
-        this.movements = movements;
-    }
+    
+    public TFOD tfod;
 
     @Override
     public void runOpMode() {
         gamepad = new Gamepad();
 
         controller = new AutonomousController(this, gamepad);
+        
+        tfod = new TFOD();
+        
+        prepTFOD();
+        
+        tfod.load(hardwareMap.get(WebcamName.class, "Webcam 1"));
 
         controller.start();
 
         super.runOpMode();
     }
+    
+    public abstract void prepTFOD();
+    
+    public abstract void runLoop();
 }
 
 class AutonomousController extends Thread {
@@ -37,16 +47,12 @@ class AutonomousController extends Thread {
 
     private double turn_mult = 12.825;
 
-    AutonomousController(AutoOp activeOp, Gamepad activeGamepad) {
+    public AutonomousController(AutoOp activeOp, Gamepad activeGamepad) {
         op = activeOp;
         gamepad = activeGamepad;
     }
 
     public void run() {
-        MovementManager movements = new MovementManager(op.movements);
-
-        movements.resetActions();
-
         op.shouldOpenHandAtIntake = false;
 
         op.isHandClosed = true;
@@ -55,96 +61,8 @@ class AutonomousController extends Thread {
 
         waitTime(500);
 
-        while (movements.getCurrentAction() != null && op.opModeIsActive()) {
-            Action action = movements.getCurrentAction();
-
-            switch (action.type) {
-                case WAIT: {
-                    waitTime(action.timeLong);
-
-                    break;
-                }
-
-                case MOVE: {
-                    switch (action.direction) {
-                        case FORWARD: {
-                            op.setWheelTargets(action.timeDouble, (int) (action.steps * op.backLeft_forward_correction),
-                                    (int) (action.steps * op.backRight_forward_correction), action.steps, action.steps);
-
-                            break;
-                        }
-                        case BACKWARD: {
-                            op.setWheelTargets(action.timeDouble,
-                                    -((int) (action.steps * op.backLeft_forward_correction)),
-                                    -((int) (action.steps * op.backRight_forward_correction)), -action.steps,
-                                    -action.steps);
-
-                            break;
-                        }
-
-                        case LEFT: {
-                            op.setWheelTargets(action.timeDouble, (int) (action.steps * op.backLeft_strafe_correction),
-                                    -((int) (action.steps * op.backRight_strafe_correction)), -action.steps,
-                                    action.steps);
-
-                            break;
-                        }
-                        case RIGHT: {
-                            op.setWheelTargets(action.timeDouble,
-                                    -((int) (action.steps * op.backLeft_strafe_correction)),
-                                    (int) (action.steps * op.backRight_strafe_correction), action.steps,
-                                    -action.steps);
-
-                            break;
-                        }
-                    }
-
-                    while (op.wheelSetPositionTargetTime != null && op.opModeIsActive()) {
-                    }
-
-                    break;
-                }
-
-                case TURN: {
-                    op.setWheelTargets(action.timeDouble, (int) (action.degrees * turn_mult),
-                            -((int) (action.degrees * turn_mult)),
-                            (int) (action.degrees * turn_mult), -((int) (action.degrees * turn_mult)));
-
-                    while (op.wheelSetPositionTargetTime != null && op.opModeIsActive()) {
-                    }
-
-                    break;
-                }
-
-                case GAMEPAD: {
-                    try {
-                        Field field;
-
-                        if (action.isDynamic) {
-                            field = gamepad.getClass().getDeclaredField(action.input.name());
-
-                            field.set(gamepad, action.value);
-                        } else {
-                            field = gamepad.getClass().getDeclaredField(action.button.name());
-
-                            if (action.active == null) {
-                                field.set(gamepad, true);
-
-                                waitTime(movements.button_tap_timeout);
-
-                                field.set(gamepad, false);
-                            } else {
-                                field.set(gamepad, action.active);
-                            }
-                        }
-                    } catch (Exception e) {
-                    }
-
-                    break;
-                }
-            }
-
-            movements.setCurrentActionCompleted();
+        while (op.opModeIsActive()) {
+            op.runLoop();
         }
     }
 
