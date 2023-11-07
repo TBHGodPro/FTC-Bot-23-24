@@ -16,7 +16,7 @@ import java.lang.reflect.Field;
 
 public abstract class AutoOp extends MainOp {
     public AutonomousController controller;
-    
+
     public TFOD tfod;
 
     @Override
@@ -24,20 +24,20 @@ public abstract class AutoOp extends MainOp {
         gamepad = new Gamepad();
 
         controller = new AutonomousController(this, gamepad);
-        
+
         tfod = new TFOD();
-        
+
         prepTFOD();
-        
+
         tfod.load(hardwareMap.get(WebcamName.class, "Webcam 1"));
 
         controller.start();
 
         super.runOpMode();
     }
-    
+
     public abstract void prepTFOD();
-    
+
     public abstract void runLoop();
 }
 
