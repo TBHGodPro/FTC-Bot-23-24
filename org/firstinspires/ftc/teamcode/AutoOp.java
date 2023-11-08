@@ -9,15 +9,15 @@ import org.firstinspires.ftc.teamcode.Camera.*;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-
 import java.lang.Thread;
 import java.lang.reflect.Field;
+
+import org.firstinspires.ftc.teamcode.Camera.OpenCV.*;
 
 public abstract class AutoOp extends MainOp {
     public AutonomousController controller;
 
-    public TFOD tfod;
+    public OpenCVManager manager;
 
     @Override
     public void runOpMode() {
@@ -25,18 +25,14 @@ public abstract class AutoOp extends MainOp {
 
         controller = new AutonomousController(this, gamepad);
 
-        tfod = new TFOD();
+        manager = new OpenCVManager(hardwareMap.get(WebcamName.class, "Webcam 1"));
 
-        prepTFOD();
-
-        tfod.load(hardwareMap.get(WebcamName.class, "Webcam 1"));
+        manager.create();
 
         controller.start();
 
         super.runOpMode();
     }
-
-    public abstract void prepTFOD();
 
     public abstract void runLoop();
 }
@@ -64,6 +60,8 @@ class AutonomousController extends Thread {
         while (op.opModeIsActive()) {
             op.runLoop();
         }
+
+        op.manager.close();
     }
 
     private void waitTime(long ms) {
