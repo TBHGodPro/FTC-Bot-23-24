@@ -1,20 +1,20 @@
-package org.firstinspires.ftc.teamcode.Camera.OpenCV;
+package org.firstinspires.ftc.teamcode.Camera;
 
-import org.firstinspires.ftc.teamcode.Camera.OpenCV.Processor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.Camera.ImageProcessor;
 
 public class OpenCVManager {
     public VisionPortal portal;
     
-    public Processor processor;
+    public ImageProcessor processor;
 
     public WebcamName camera;
 
     public OpenCVManager(WebcamName camera) {
         this.camera = camera;
 
-        processor = new Processor();
+        processor = new ImageProcessor();
     }
 
     public void create() {

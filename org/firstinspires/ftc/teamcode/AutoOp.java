@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import java.lang.Thread;
 import java.lang.reflect.Field;
 
-import org.firstinspires.ftc.teamcode.Camera.OpenCV.*;
+import org.firstinspires.ftc.teamcode.Camera.*;
 
 public abstract class AutoOp extends MainOp {
     public AutonomousController controller;
