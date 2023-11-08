@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Camera.OpenCV;
+package org.firstinspires.ftc.teamcode.Camera;
 
 import android.graphics.Canvas;
 
@@ -8,7 +8,7 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
-public class Processor implements VisionProcessor {
+public class ImageProcessor implements VisionProcessor {
     @Override
     public void init(int width, int height, CameraCalibration calibration) {
         // Code executed on the first frame dispatched into this VisionProcessor
