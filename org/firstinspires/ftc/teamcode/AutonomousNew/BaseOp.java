@@ -37,8 +37,6 @@ class AutonomousController extends Thread {
     public BaseOp op;
     public Gamepad gamepad;
 
-    private double turn_mult = 12.825;
-
     public AutonomousController(BaseOp activeOp, Gamepad activeGamepad) {
         op = activeOp;
         gamepad = activeGamepad;
