@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.Camera;
+package org.firstinspires.ftc.teamcode.AutonomousNew.Camera;
 
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.Camera.ImageProcessor;
+import org.firstinspires.ftc.teamcode.AutonomousNew.Camera.ImageProcessor;
 
 public class OpenCVManager {
     public VisionPortal portal;

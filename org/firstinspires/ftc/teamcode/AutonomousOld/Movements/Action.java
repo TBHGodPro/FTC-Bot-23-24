@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.Movements;
+package org.firstinspires.ftc.teamcode.AutonomousOld.Movements;
 
-import org.firstinspires.ftc.teamcode.Movements.MoveDirection;
-import org.firstinspires.ftc.teamcode.Movements.GamepadButton;
-import org.firstinspires.ftc.teamcode.Movements.GamepadDynamicInput;
+import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.GamepadButton;
+import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.GamepadDynamicInput;
+import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.MoveDirection;
 
 public class Action {
     public ActionType type;
