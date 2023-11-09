@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.AutonomousNew.Camera.ImageProcessor;
 
 public class OpenCVManager {
     public VisionPortal portal;
-    
+
     public ImageProcessor processor;
 
     public WebcamName camera;

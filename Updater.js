@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { readFile } = require('fs/promises');
 const { resolve } = require('path');
 const axios = require('axios');
 
@@ -12,11 +13,15 @@ fs.watch(
       case 'change': {
         console.log(`Change detected in "${file}"`);
 
+        const fileData = await readFile(resolve(__dirname, 'org/firstinspires/ftc/teamcode', file), 'utf-8').catch(() => null);
+
+        if (!fileData) return;
+
         const res = await axios
           .post(
             `http://192.168.43.1:8080/java/file/save?f=/src/org/firstinspires/ftc/teamcode/${file}`,
             {
-              data: fs.readFileSync(resolve(__dirname, 'org/firstinspires/ftc/teamcode', file), 'utf-8'),
+              data: fileData,
             },
             {
               headers: {

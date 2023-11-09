@@ -33,9 +33,9 @@ public class MainOp extends LinearOpMode {
 
   // Bot
   private BotState state;
-  
+
   private long frames = 0;
-  
+
   private int motorResetZeroMS = 100;
   private int imuInitTimeoutMS = 150;
 
@@ -172,7 +172,7 @@ public class MainOp extends LinearOpMode {
       while (opModeIsActive()) {
         // Frame Rate Counter
         frames += 1;
-        
+
         // Live Telemetry
         telemetry.update();
 
@@ -335,12 +335,12 @@ public class MainOp extends LinearOpMode {
         return state.name();
       }
     })
-      .addData("FPS", new Func<String>() {
-        @Override
-        public String value() {
-          return (frames / getRuntime()) + "/s";
-        }
-      });
+        .addData("FPS", new Func<String>() {
+          @Override
+          public String value() {
+            return (frames / getRuntime()) + "/s";
+          }
+        });
 
     telemetry.addLine();
 
@@ -393,13 +393,13 @@ public class MainOp extends LinearOpMode {
     telemetry.addLine("--- Wheels ---");
     telemetry.addLine();
     telemetry.addData("Desired Target Position ", new Func<String>() {
-          @Override
-          public String value() {
-            return backLeftTargetPos == null ? ""
-                : " " + backLeftTargetPos + " " + backRightTargetPos + " " + frontLeftTargetPos + " "
-                    + frontRightTargetPos;
-          }
-        })
+      @Override
+      public String value() {
+        return backLeftTargetPos == null ? ""
+            : " " + backLeftTargetPos + " " + backRightTargetPos + " " + frontLeftTargetPos + " "
+                + frontRightTargetPos;
+      }
+    })
         .addData("Active Target Position ", new Func<String>() {
           @Override
           public String value() {

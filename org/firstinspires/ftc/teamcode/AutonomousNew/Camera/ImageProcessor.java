@@ -19,6 +19,7 @@ public class ImageProcessor implements VisionProcessor {
         // Actual computer vision magic will happen here
 
         Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGB2GRAY);
+
         return null; // No context object
     }
 
