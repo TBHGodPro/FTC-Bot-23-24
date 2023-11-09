@@ -1,20 +1,16 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.AutonomousNew;
 
 import org.firstinspires.ftc.teamcode.MainOp;
-
+import org.firstinspires.ftc.teamcode.AutonomousNew.Camera.*;
+import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.*;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-
-import org.firstinspires.ftc.teamcode.Movements.*;
-import org.firstinspires.ftc.teamcode.Camera.*;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import java.lang.Thread;
 import java.lang.reflect.Field;
 
-import org.firstinspires.ftc.teamcode.Camera.*;
-
-public abstract class AutoOp extends MainOp {
+public abstract class BaseOp extends MainOp {
     public AutonomousController controller;
 
     public OpenCVManager manager;
@@ -38,12 +34,12 @@ public abstract class AutoOp extends MainOp {
 }
 
 class AutonomousController extends Thread {
-    public AutoOp op;
+    public BaseOp op;
     public Gamepad gamepad;
 
     private double turn_mult = 12.825;
 
-    public AutonomousController(AutoOp activeOp, Gamepad activeGamepad) {
+    public AutonomousController(BaseOp activeOp, Gamepad activeGamepad) {
         op = activeOp;
         gamepad = activeGamepad;
     }

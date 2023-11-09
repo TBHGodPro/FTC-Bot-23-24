@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Camera;
+package org.firstinspires.ftc.teamcode.AutonomousNew.Camera;
 
 import android.graphics.Canvas;
 
