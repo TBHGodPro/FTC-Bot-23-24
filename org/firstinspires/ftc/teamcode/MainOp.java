@@ -33,6 +33,9 @@ public class MainOp extends LinearOpMode {
 
   // Bot
   private BotState state;
+  
+  private long frames = 0;
+  
   private int motorResetZeroMS = 100;
   private int imuInitTimeoutMS = 150;
 
@@ -48,8 +51,8 @@ public class MainOp extends LinearOpMode {
   private DcMotorEx frontLeft;
   private DcMotorEx frontRight;
 
-  private double dpad_up_down_power = 0.6;
-  private double dpad_left_right_power = 0.4;
+  private double dpad_up_down_power = 0.4;
+  private double dpad_left_right_power = 0.25;
 
   public double backLeft_forward_correction = 0.99;
   public double backRight_forward_correction = 1.00;
@@ -90,7 +93,7 @@ public class MainOp extends LinearOpMode {
   private Servo.Direction wristDirection = Servo.Direction.REVERSE;
 
   private double wristPos = 1;
-  private double wristPosInterval = 0.002;
+  private double wristPosInterval = 0.003;
 
   // Hand
   private Servo hand;
@@ -167,6 +170,9 @@ public class MainOp extends LinearOpMode {
       straightAngle = angles.getYaw(AngleUnit.DEGREES);
 
       while (opModeIsActive()) {
+        // Frame Rate Counter
+        frames += 1;
+        
         // Live Telemetry
         telemetry.update();
 
@@ -328,7 +334,13 @@ public class MainOp extends LinearOpMode {
       public String value() {
         return state.name();
       }
-    });
+    })
+      .addData("FPS", new Func<String>() {
+        @Override
+        public String value() {
+          return (frames / getRuntime()) + "/s";
+        }
+      });
 
     telemetry.addLine();
 
@@ -380,15 +392,7 @@ public class MainOp extends LinearOpMode {
 
     telemetry.addLine("--- Wheels ---");
     telemetry.addLine();
-    telemetry.addData("Back Forward Correction ",
-        " Left = " + backLeft_forward_correction + ", Right = " + backRight_forward_correction)
-        .addData("Back Strafe Correction     ",
-            " Left = " + backLeft_strafe_correction + ", Right = " + backRight_strafe_correction)
-        .addData("Wheel Direction           ",
-            " Left = " + leftWheelDirection.toString().charAt(0) + ", Right = "
-                + rightWheelDirection.toString().charAt(0))
-        .addData("Zero Power Behavior ", " " + wheelZeroPowerBehavior)
-        .addData("Target Position ", new Func<String>() {
+    telemetry.addData("Desired Target Position ", new Func<String>() {
           @Override
           public String value() {
             return backLeftTargetPos == null ? ""
@@ -396,7 +400,7 @@ public class MainOp extends LinearOpMode {
                     + frontRightTargetPos;
           }
         })
-        .addData("Set Target Position ", new Func<String>() {
+        .addData("Active Target Position ", new Func<String>() {
           @Override
           public String value() {
             return backLeft == null ? ""
