@@ -6,7 +6,9 @@ import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibra
 import org.firstinspires.ftc.vision.VisionProcessor;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.core.Scalar;
 
 public class ImageProcessor implements VisionProcessor {
     @Override
@@ -18,7 +20,15 @@ public class ImageProcessor implements VisionProcessor {
     public Object processFrame(Mat frame, long captureTimeNanos) {
         // Actual computer vision magic will happen here
 
-        Imgproc.cvtColor(frame, frame, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.rectangle(
+                frame,
+                new Point(
+                        frame.cols() / 4,
+                        frame.rows() / 4),
+                new Point(
+                        frame.cols() * (3f / 4f),
+                        frame.rows() * (3f / 4f)),
+                new Scalar(0, 255, 0), 4);
 
         return null; // No context object
     }
