@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.AutonomousNew.Camera;
 
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.AutonomousNew.BaseOp;
 import org.firstinspires.ftc.teamcode.AutonomousNew.Camera.ImageProcessor;
 
 public class OpenCVManager {
