@@ -5,7 +5,7 @@ const WebSocket = require('ws');
 const ws = new WebSocket('ws://192.168.43.1:8081/');
 
 ws.on('open', () => {
-  console.log('WebSocket Open!');
+  console.log(`WebSocket Open in ${Date.now() - started}ms`);
 
   ws.send(
     JSON.stringify({
@@ -41,13 +41,13 @@ ws.on('message', msg => {
 
       switch (payload.status) {
         case 'PENDING': {
-          console.log('Build Pending');
+          console.log(`Build Pending in ${Date.now() - started}ms`);
 
           break;
         }
 
         case 'RUNNING': {
-          console.log('Build Running');
+          console.log(`Build Running in ${Date.now() - started}ms`);
 
           break;
         }
