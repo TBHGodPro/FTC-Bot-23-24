@@ -145,6 +145,14 @@ class AutonomousController extends Thread {
 
             movements.setCurrentActionCompleted();
         }
+
+        waitTime(500);
+
+        op.wristPos = 1;
+
+        waitTime(500);
+
+        op.setArmPosition(0);
     }
 
     private void waitTime(long ms) {

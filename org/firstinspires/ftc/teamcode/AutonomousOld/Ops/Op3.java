@@ -7,13 +7,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.*;
 import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.Actions.*;
 
-@Autonomous(name = "Old Auto 1", group = "Old Autonomous")
-public class Op1 extends BaseOp {
+@Autonomous(name = "Old Auto 3", group = "Old Autonomous")
+public class Op3 extends BaseOp {
     public static final Action[] movements = {
             // ACTIONS HERE
             
             new MoveAction(MoveDirection.FORWARD, 1450, 1.2),
-            new TurnAction(90, 0.5),
+            new TurnAction(-90, 0.5),
             new GamepadAction(GamepadButton.b),
             new WaitAction(150),
             new GamepadAction(GamepadButton.y),
@@ -24,7 +24,7 @@ public class Op1 extends BaseOp {
             // ACTIONS HERE
     };
 
-    public Op1() {
+    public Op3() {
         super(movements);
     }
 }

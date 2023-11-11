@@ -34,11 +34,11 @@ public class ImageProcessor implements VisionProcessor {
         private static final int SCREEN_HEIGHT = 480;
 
         private static final int REGION_WIDTH = SCREEN_WIDTH / 3;
-        private static final int REGION_HEIGHT = SCREEN_HEIGHT;
+        private static final int REGION_HEIGHT = SCREEN_HEIGHT - 150;
 
-        private static final Point REGION1_TOPLEFT_ANCHOR = new Point(0, 0);
-        private static final Point REGION2_TOPLEFT_ANCHOR = new Point(SCREEN_WIDTH / 3, 0);
-        private static final Point REGION3_TOPLEFT_ANCHOR = new Point(SCREEN_WIDTH / 1.5, 0);
+        private static final Point REGION1_TOPLEFT_ANCHOR = new Point(0, 75);
+        private static final Point REGION2_TOPLEFT_ANCHOR = new Point(SCREEN_WIDTH / 3, 75);
+        private static final Point REGION3_TOPLEFT_ANCHOR = new Point(SCREEN_WIDTH / 1.5, 75);
 
         private Point region1_A = new Point(
                         REGION1_TOPLEFT_ANCHOR.x,
