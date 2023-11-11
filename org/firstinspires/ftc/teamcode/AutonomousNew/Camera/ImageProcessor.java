@@ -61,14 +61,8 @@ public class ImageProcessor implements VisionProcessor {
 
         // Position
 
-        private enum PossiblePosition {
-                LEFT,
-                CENTER,
-                RIGHT
-        }
-
-        // Volatile since accessed by OpMode thread w/o synchronization
-        private volatile PossiblePosition position = PossiblePosition.CENTER;
+        // - Volatile since accessed by OpMode thread w/o synchronization
+        public volatile PossiblePosition position = PossiblePosition.CENTER;
 
         // Methods
 

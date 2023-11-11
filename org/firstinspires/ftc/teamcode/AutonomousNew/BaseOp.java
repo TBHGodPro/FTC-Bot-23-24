@@ -30,7 +30,7 @@ public abstract class BaseOp extends MainOp {
         super.runOpMode();
     }
 
-    public abstract void runLoop();
+    public abstract void runOP();
 }
 
 class AutonomousController extends Thread {
@@ -51,9 +51,7 @@ class AutonomousController extends Thread {
 
         waitTime(500);
 
-        while (op.opModeIsActive()) {
-            op.runLoop();
-        }
+        op.runOP();
 
         op.manager.close();
     }
