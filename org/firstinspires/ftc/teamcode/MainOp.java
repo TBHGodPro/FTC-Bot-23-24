@@ -92,7 +92,7 @@ public class MainOp extends LinearOpMode {
   private Servo wrist;
   private Servo.Direction wristDirection = Servo.Direction.REVERSE;
 
-  private double wristPos = 1;
+  public double wristPos = 1;
   private double wristPosInterval = 0.003;
 
   // Hand
