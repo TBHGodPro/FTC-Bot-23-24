@@ -21,8 +21,12 @@ enum BotState {
   Stopped
 }
 
+abstract class MainOpBase extends LinearOpMode {
+  public abstract void setupExtraTelemetry();
+}
+
 @TeleOp(name = "MainOp")
-public class MainOp extends LinearOpMode {
+public class MainOp extends MainOpBase {
   // Gamepad
   public Gamepad gamepad;
 
@@ -328,6 +332,7 @@ public class MainOp extends LinearOpMode {
     telemetry.update();
   }
 
+  public void setupExtraTelemetry() {}
   private void updateTelemetry() {
     telemetry.addData("State", new Func<String>() {
       @Override
@@ -341,6 +346,8 @@ public class MainOp extends LinearOpMode {
             return (frames / getRuntime()) + "/s";
           }
         });
+        
+    setupExtraTelemetry();
 
     telemetry.addLine();
 

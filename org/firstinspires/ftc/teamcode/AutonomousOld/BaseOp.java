@@ -28,6 +28,10 @@ public class BaseOp extends MainOp {
 
         super.runOpMode();
     }
+    
+    public void setupExtraTelemetry() {
+        return;
+    }
 }
 
 class AutonomousController extends Thread {
@@ -145,13 +149,13 @@ class AutonomousController extends Thread {
 
             movements.setCurrentActionCompleted();
         }
-
+        
         waitTime(500);
-
+        
         op.wristPos = 1;
-
+        
         waitTime(500);
-
+        
         op.setArmPosition(0);
     }
 
