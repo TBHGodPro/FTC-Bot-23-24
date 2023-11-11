@@ -14,181 +14,151 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 public class ImageProcessor implements VisionProcessor {
-        static final int colorCVT = Imgproc.COLOR_RGB2YCrCb;
-        static final int colorChannel = 2;
+        // Static Colors
+        private static final Scalar REGION_BOUNDARY = new Scalar(0, 0, 255);
+        private static final Scalar REGION_FILL = new Scalar(0, 255, 0);
 
-        public enum SkystonePosition {
+        // Processing
+
+        private Mat hsvMat = new Mat();
+        private Mat binaryMat = new Mat();
+
+        private Mat region1_Mat, region2_Mat, region3_Mat;
+
+        private Scalar lower = new Scalar(75, 75, 100);
+        private Scalar upper = new Scalar(200, 200, 255);
+
+        // Regions
+
+        private static final int SCREEN_WIDTH = 640;
+        private static final int SCREEN_HEIGHT = 480;
+
+        private static final int REGION_WIDTH = SCREEN_WIDTH / 3;
+        private static final int REGION_HEIGHT = SCREEN_HEIGHT;
+
+        private static final Point REGION1_TOPLEFT_ANCHOR = new Point(0, 0);
+        private static final Point REGION2_TOPLEFT_ANCHOR = new Point(SCREEN_WIDTH / 3, 0);
+        private static final Point REGION3_TOPLEFT_ANCHOR = new Point(SCREEN_WIDTH / 1.5, 0);
+
+        private Point region1_A = new Point(
+                        REGION1_TOPLEFT_ANCHOR.x,
+                        REGION1_TOPLEFT_ANCHOR.y);
+        private Point region1_B = new Point(
+                        REGION1_TOPLEFT_ANCHOR.x + REGION_WIDTH,
+                        REGION1_TOPLEFT_ANCHOR.y + REGION_HEIGHT);
+        private Point region2_A = new Point(
+                        REGION2_TOPLEFT_ANCHOR.x,
+                        REGION2_TOPLEFT_ANCHOR.y);
+        private Point region2_B = new Point(
+                        REGION2_TOPLEFT_ANCHOR.x + REGION_WIDTH,
+                        REGION2_TOPLEFT_ANCHOR.y + REGION_HEIGHT);
+        private Point region3_A = new Point(
+                        REGION3_TOPLEFT_ANCHOR.x,
+                        REGION3_TOPLEFT_ANCHOR.y);
+        private Point region3_B = new Point(
+                        REGION3_TOPLEFT_ANCHOR.x + REGION_WIDTH,
+                        REGION3_TOPLEFT_ANCHOR.y + REGION_HEIGHT);
+
+        // Position
+
+        private enum PossiblePosition {
                 LEFT,
                 CENTER,
                 RIGHT
         }
 
-        static final Scalar BLUE = new Scalar(0, 0, 255);
-        static final Scalar GREEN = new Scalar(0, 255, 0);
-
-        static final int SCREEN_WIDTH = 640;
-        static final int SCREEN_HEIGHT = 480;
-
-        static final Point REGION1_TOPLEFT_ANCHOR_POINT = new Point(0, 0);
-        static final Point REGION2_TOPLEFT_ANCHOR_POINT = new Point(SCREEN_WIDTH / 3, 0);
-        static final Point REGION3_TOPLEFT_ANCHOR_POINT = new Point(SCREEN_WIDTH / 1.5, 0);
-
-        static final int REGION_WIDTH = SCREEN_WIDTH / 3;
-        static final int REGION_HEIGHT = SCREEN_HEIGHT;
-
-        Point region1_pointA = new Point(
-                        REGION1_TOPLEFT_ANCHOR_POINT.x,
-                        REGION1_TOPLEFT_ANCHOR_POINT.y);
-        Point region1_pointB = new Point(
-                        REGION1_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-                        REGION1_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
-        Point region2_pointA = new Point(
-                        REGION2_TOPLEFT_ANCHOR_POINT.x,
-                        REGION2_TOPLEFT_ANCHOR_POINT.y);
-        Point region2_pointB = new Point(
-                        REGION2_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-                        REGION2_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
-        Point region3_pointA = new Point(
-                        REGION3_TOPLEFT_ANCHOR_POINT.x,
-                        REGION3_TOPLEFT_ANCHOR_POINT.y);
-        Point region3_pointB = new Point(
-                        REGION3_TOPLEFT_ANCHOR_POINT.x + REGION_WIDTH,
-                        REGION3_TOPLEFT_ANCHOR_POINT.y + REGION_HEIGHT);
-
-        /*
-         * Working variables
-         */
-        Mat region1_Val, region2_Val, region3_Val;
-        Mat Converted = new Mat();
-        Mat Val = new Mat();
-        int avg1, avg2, avg3;
-
         // Volatile since accessed by OpMode thread w/o synchronization
-        private volatile SkystonePosition position = SkystonePosition.LEFT;
+        private volatile PossiblePosition position = PossiblePosition.CENTER;
+
+        // Methods
 
         @Override
         public void init(int width, int height, CameraCalibration calibration) {
                 // Code executed on the first frame dispatched into this VisionProcessor
         }
 
-        void inputToCb(Mat input) {
-                // 0 = Luma
-                // 1 = Diff from Red
-                // 2 = Diff from Blue
-
-                Imgproc.cvtColor(input, Converted, colorCVT);
-                Core.extractChannel(Converted, Val, colorChannel);
-        }
-
         @Override
         public Object processFrame(Mat input, long captureTimeNanos) {
-                // Actual computer vision magic will happen here
+                // Image Conversion
 
-                /*
-                 * Get the Cb channel of the input frame after conversion to YCrCb
-                 */
-                inputToCb(input);
+                Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV);
+                Core.inRange(hsvMat, lower, upper, binaryMat);
 
-                Imgproc.cvtColor(input, input, colorCVT);
+                // Draw Region Boundaries
 
-                if (region1_Val == null) {
-                        /*
-                         * Submats are a persistent reference to a region of the parent
-                         * buffer. Any changes to the child affect the parent, and the
-                         * reverse also holds true.
-                         */
-                        region1_Val = Val.submat(new Rect(region1_pointA, region1_pointB));
-                        region2_Val = Val.submat(new Rect(region2_pointA, region2_pointB));
-                        region3_Val = Val.submat(new Rect(region3_pointA, region3_pointB));
+                Imgproc.rectangle(
+                                input,
+                                region1_A,
+                                region1_B,
+                                REGION_BOUNDARY,
+                                2);
+
+                Imgproc.rectangle(
+                                input,
+                                region2_A,
+                                region2_B,
+                                REGION_BOUNDARY,
+                                2);
+
+                Imgproc.rectangle(
+                                input,
+                                region3_A,
+                                region3_B,
+                                REGION_BOUNDARY,
+                                2);
+
+                // Locate Most Likely Region
+
+                // - Set Submats
+                if (region1_Mat == null) {
+                        region1_Mat = binaryMat.submat(new Rect(region1_A, region1_B));
+                        region2_Mat = binaryMat.submat(new Rect(region2_A, region2_B));
+                        region3_Mat = binaryMat.submat(new Rect(region3_A, region3_B));
                 }
 
-                /*
-                 * Compute the average pixel value of each submat region. We're
-                 * taking the average of a single channel buffer, so the value
-                 * we need is at index 0. We could have also taken the average
-                 * pixel value of the 3-channel image, and referenced the value
-                 * at index 2 here.
-                 */
-                avg1 = (int) Core.mean(region1_Val).val[0];
-                avg2 = (int) Core.mean(region2_Val).val[0];
-                avg3 = (int) Core.mean(region3_Val).val[0];
+                // - Find Averages
 
-                Imgproc.rectangle(
-                                input, // Buffer to draw on
-                                region1_pointA, // First point which defines the rectangle
-                                region1_pointB, // Second point which defines the rectangle
-                                BLUE, // The color the rectangle is drawn in
-                                2); // Thickness of the rectangle lines
+                int avg1 = (int) Core.mean(region1_Mat).val[0];
+                int avg2 = (int) Core.mean(region2_Mat).val[0];
+                int avg3 = (int) Core.mean(region3_Mat).val[0];
 
-                Imgproc.rectangle(
-                                input, // Buffer to draw on
-                                region2_pointA, // First point which defines the rectangle
-                                region2_pointB, // Second point which defines the rectangle
-                                BLUE, // The color the rectangle is drawn in
-                                2); // Thickness of the rectangle lines
+                // - Find Highest Average
 
-                Imgproc.rectangle(
-                                input, // Buffer to draw on
-                                region3_pointA, // First point which defines the rectangle
-                                region3_pointB, // Second point which defines the rectangle
-                                BLUE, // The color the rectangle is drawn in
-                                2); // Thickness of the rectangle lines
-
-                /*
-                 * Find the max of the 3 averages
-                 */
                 int maxOneTwo = Math.max(avg1, avg2);
                 int max = Math.max(maxOneTwo, avg3);
 
-                /*
-                 * Now that we found the max, we actually need to go and
-                 * figure out which sample region that value was from
-                 */
-                if (max == avg1) // Was it from region 1?
-                {
-                        position = SkystonePosition.LEFT; // Record our analysis
+                // Display and Record Findings
 
-                        /*
-                         * Draw a solid rectangle on top of the chosen region.
-                         * Simply a visual aid. Serves no functional purpose.
-                         */
-                        Imgproc.rectangle(
-                                        input, // Buffer to draw on
-                                        region1_pointA, // First point which defines the rectangle
-                                        region1_pointB, // Second point which defines the rectangle
-                                        GREEN, // The color the rectangle is drawn in
-                                        -1); // Negative thickness means solid fill
-                } else if (max == avg2) // Was it from region 2?
-                {
-                        position = SkystonePosition.CENTER; // Record our analysis
+                if (max == avg1) {
+                        position = PossiblePosition.LEFT;
 
-                        /*
-                         * Draw a solid rectangle on top of the chosen region.
-                         * Simply a visual aid. Serves no functional purpose.
-                         */
                         Imgproc.rectangle(
-                                        input, // Buffer to draw on
-                                        region2_pointA, // First point which defines the rectangle
-                                        region2_pointB, // Second point which defines the rectangle
-                                        GREEN, // The color the rectangle is drawn in
-                                        -1); // Negative thickness means solid fill
-                } else if (max == avg3) // Was it from region 3?
-                {
-                        position = SkystonePosition.RIGHT; // Record our analysis
+                                        input,
+                                        region1_A,
+                                        region1_B,
+                                        REGION_FILL,
+                                        -1);
+                } else if (max == avg2) {
+                        position = PossiblePosition.CENTER;
 
-                        /*
-                         * Draw a solid rectangle on top of the chosen region.
-                         * Simply a visual aid. Serves no functional purpose.
-                         */
                         Imgproc.rectangle(
-                                        input, // Buffer to draw on
-                                        region3_pointA, // First point which defines the rectangle
-                                        region3_pointB, // Second point which defines the rectangle
-                                        GREEN, // The color the rectangle is drawn in
-                                        -1); // Negative thickness means solid fill
+                                        input,
+                                        region2_A,
+                                        region2_B,
+                                        REGION_FILL,
+                                        -1);
+                } else if (max == avg3) {
+                        position = PossiblePosition.RIGHT;
+
+                        Imgproc.rectangle(
+                                        input,
+                                        region3_A,
+                                        region3_B,
+                                        REGION_FILL,
+                                        -1);
                 }
 
-                return null; // No context object
+                return null;
         }
 
         @Override
