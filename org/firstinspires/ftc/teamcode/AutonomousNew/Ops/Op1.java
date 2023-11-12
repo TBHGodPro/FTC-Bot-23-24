@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.AutonomousNew.Ops;
 import org.firstinspires.ftc.teamcode.AutonomousNew.BaseOp;
 
 import org.firstinspires.ftc.teamcode.AutonomousNew.Camera.PossiblePosition;
+import org.firstinspires.ftc.teamcode.AutonomousNew.Util.Alliance;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -36,4 +37,8 @@ public class Op1 extends BaseOp {
             }
         });
     }
+
+    public Alliance getAlliance() {
+        return Alliance.BLUE;
+    };
 }

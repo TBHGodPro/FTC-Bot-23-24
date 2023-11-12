@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.AutonomousNew;
 
 import org.firstinspires.ftc.teamcode.MainOp;
 import org.firstinspires.ftc.teamcode.AutonomousNew.Camera.*;
+import org.firstinspires.ftc.teamcode.AutonomousNew.Util.*;
 import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.*;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
@@ -21,7 +22,7 @@ public abstract class BaseOp extends MainOp {
 
         controller = new AutonomousController(this, gamepad);
 
-        manager = new OpenCVManager(hardwareMap.get(WebcamName.class, "Webcam 1"));
+        manager = new OpenCVManager(getAlliance(), hardwareMap.get(WebcamName.class, "Webcam 1"));
 
         manager.create();
 
@@ -29,6 +30,8 @@ public abstract class BaseOp extends MainOp {
 
         super.runOpMode();
     }
+
+    public abstract Alliance getAlliance();
 
     public abstract void runOP();
 }

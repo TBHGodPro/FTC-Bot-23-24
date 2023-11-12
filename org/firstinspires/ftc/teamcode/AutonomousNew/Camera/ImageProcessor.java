@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.teamcode.AutonomousNew.BaseOp;
+import org.firstinspires.ftc.teamcode.AutonomousNew.Util.*;
 import org.firstinspires.ftc.vision.VisionProcessor;
 
 import org.opencv.core.Core;
@@ -26,8 +27,8 @@ public class ImageProcessor implements VisionProcessor {
 
         private Mat region1_Mat, region2_Mat, region3_Mat;
 
-        private Scalar lower = new Scalar(75, 75, 100);
-        private Scalar upper = new Scalar(200, 200, 255);
+        private Scalar lower;
+        private Scalar upper;
 
         // Regions
 
@@ -64,6 +65,26 @@ public class ImageProcessor implements VisionProcessor {
 
         // - Volatile since accessed by OpMode thread w/o synchronization
         public volatile PossiblePosition position = PossiblePosition.CENTER;
+
+        // Constructor
+
+        public ImageProcessor(Alliance alliance) {
+                switch (alliance) {
+                        case RED: {
+                                lower = new Scalar(100, 75, 75);
+                                upper = new Scalar(255, 200, 200);
+
+                                break;
+                        }
+
+                        case BLUE: {
+                                lower = new Scalar(75, 75, 100);
+                                upper = new Scalar(200, 200, 255);
+
+                                break;
+                        }
+                }
+        }
 
         // Methods
 
