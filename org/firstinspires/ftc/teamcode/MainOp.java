@@ -332,7 +332,9 @@ public class MainOp extends MainOpBase {
     telemetry.update();
   }
 
-  public void setupExtraTelemetry() {}
+  public void setupExtraTelemetry() {
+  }
+
   private void updateTelemetry() {
     telemetry.addData("State", new Func<String>() {
       @Override
@@ -346,7 +348,7 @@ public class MainOp extends MainOpBase {
             return (frames / getRuntime()) + "/s";
           }
         });
-        
+
     setupExtraTelemetry();
 
     telemetry.addLine();

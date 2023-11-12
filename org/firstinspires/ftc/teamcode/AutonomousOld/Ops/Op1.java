@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.Actions.*;
 public class Op1 extends BaseOp {
     public static final Action[] movements = {
             // ACTIONS HERE
-            
+
             new MoveAction(MoveDirection.FORWARD, 1450, 1.2),
             new TurnAction(90, 0.5),
             new GamepadAction(GamepadButton.b),

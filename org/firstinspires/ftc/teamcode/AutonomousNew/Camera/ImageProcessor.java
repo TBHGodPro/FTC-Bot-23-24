@@ -15,6 +15,7 @@ import org.opencv.imgproc.Imgproc;
 
 public class ImageProcessor implements VisionProcessor {
         // Static Colors
+
         private static final Scalar REGION_BOUNDARY = new Scalar(0, 0, 255);
         private static final Scalar REGION_FILL = new Scalar(0, 255, 0);
 
