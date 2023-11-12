@@ -14,11 +14,15 @@ public class Op1 extends BaseOp {
     public PossiblePosition position;
 
     public void runOP() {
-        // Allow time for image detection
+        // Prop Detection
+
+        // - Give 2 Seconds
         sleep(2_000);
 
+        // - Image Detected
         position = manager.processor.position;
 
+        // - Turn Off Camera (Save CPU Cycles)
         manager.close();
 
     }
