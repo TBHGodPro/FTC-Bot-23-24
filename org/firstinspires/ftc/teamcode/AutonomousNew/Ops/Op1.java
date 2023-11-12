@@ -16,15 +16,14 @@ public class Op1 extends BaseOp {
     public void runOP() {
         // Prop Detection
 
-        // - Give 2 Seconds
-        sleep(2_000);
+        // - Give 2.5 Seconds
+        sleep(2_500);
 
         // - Image Detected
         position = manager.processor.position;
 
         // - Turn Off Camera (Save CPU Cycles)
         manager.close();
-
     }
 
     public void setupExtraTelemetry() {
@@ -37,7 +36,7 @@ public class Op1 extends BaseOp {
         telemetry.addData("Decided Position", new Func<String>() {
             @Override
             public String value() {
-                return position == null ? "NONE" : position.name();
+                return position == null ? ("DECIDING (" + manager.processor.position + ")") : position.name();
             }
         });
     }
