@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.AutonomousOld;
 
 import org.firstinspires.ftc.teamcode.MainOp;
-import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.*;
+import org.firstinspires.ftc.teamcode.Movements.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -58,97 +58,7 @@ class AutonomousController extends Thread {
 
         waitTime(500);
 
-        while (movements.getCurrentAction() != null && op.opModeIsActive()) {
-            Action action = movements.getCurrentAction();
-
-            switch (action.type) {
-                case WAIT: {
-                    waitTime(action.timeLong);
-
-                    break;
-                }
-
-                case MOVE: {
-                    switch (action.direction) {
-                        case FORWARD: {
-                            op.setWheelTargets(action.timeDouble, (int) (action.steps * op.backLeft_forward_correction),
-                                    (int) (action.steps * op.backRight_forward_correction), action.steps, action.steps);
-
-                            break;
-                        }
-                        case BACKWARD: {
-                            op.setWheelTargets(action.timeDouble,
-                                    -((int) (action.steps * op.backLeft_forward_correction)),
-                                    -((int) (action.steps * op.backRight_forward_correction)), -action.steps,
-                                    -action.steps);
-
-                            break;
-                        }
-
-                        case LEFT: {
-                            op.setWheelTargets(action.timeDouble, (int) (action.steps * op.backLeft_strafe_correction),
-                                    -((int) (action.steps * op.backRight_strafe_correction)), -action.steps,
-                                    action.steps);
-
-                            break;
-                        }
-                        case RIGHT: {
-                            op.setWheelTargets(action.timeDouble,
-                                    -((int) (action.steps * op.backLeft_strafe_correction)),
-                                    (int) (action.steps * op.backRight_strafe_correction), action.steps,
-                                    -action.steps);
-
-                            break;
-                        }
-                    }
-
-                    while (op.wheelSetPositionTargetTime != null && op.opModeIsActive()) {
-                    }
-
-                    break;
-                }
-
-                case TURN: {
-                    op.setWheelTargets(action.timeDouble, (int) (action.degrees * turn_mult),
-                            -((int) (action.degrees * turn_mult)),
-                            (int) (action.degrees * turn_mult), -((int) (action.degrees * turn_mult)));
-
-                    while (op.wheelSetPositionTargetTime != null && op.opModeIsActive()) {
-                    }
-
-                    break;
-                }
-
-                case GAMEPAD: {
-                    try {
-                        Field field;
-
-                        if (action.isDynamic) {
-                            field = gamepad.getClass().getDeclaredField(action.input.name());
-
-                            field.set(gamepad, action.value);
-                        } else {
-                            field = gamepad.getClass().getDeclaredField(action.button.name());
-
-                            if (action.active == null) {
-                                field.set(gamepad, true);
-
-                                waitTime(movements.button_tap_timeout);
-
-                                field.set(gamepad, false);
-                            } else {
-                                field.set(gamepad, action.active);
-                            }
-                        }
-                    } catch (Exception e) {
-                    }
-
-                    break;
-                }
-            }
-
-            movements.setCurrentActionCompleted();
-        }
+        new MovementRunner(op, movements, gamepad).run();
 
         waitTime(500);
 

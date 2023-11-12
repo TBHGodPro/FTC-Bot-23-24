@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.AutonomousOld.Movements.Actions;
+package org.firstinspires.ftc.teamcode.Movements.Actions;
 
-import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.*;
+import org.firstinspires.ftc.teamcode.Movements.*;
 
 public class WaitAction extends Action {
     public WaitAction(long waitTime) {
