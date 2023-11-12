@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.AutonomousOld.Ops;
 
 import org.firstinspires.ftc.teamcode.AutonomousOld.BaseOp;
+import org.firstinspires.ftc.teamcode.Movements.*;
+import org.firstinspires.ftc.teamcode.Movements.Actions.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
-import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.*;
-import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.Actions.*;
 
 @Autonomous(name = "Old Auto 3", group = "Old Autonomous")
 public class Op3 extends BaseOp {

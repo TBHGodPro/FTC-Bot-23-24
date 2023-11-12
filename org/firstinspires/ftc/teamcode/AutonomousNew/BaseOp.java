@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.AutonomousNew;
 import org.firstinspires.ftc.teamcode.MainOp;
 import org.firstinspires.ftc.teamcode.AutonomousNew.Camera.*;
 import org.firstinspires.ftc.teamcode.AutonomousNew.Util.*;
-import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.*;
+import org.firstinspires.ftc.teamcode.Movements.*;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import com.qualcomm.robotcore.hardware.Gamepad;

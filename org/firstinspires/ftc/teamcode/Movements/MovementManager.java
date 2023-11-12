@@ -1,6 +1,4 @@
-package org.firstinspires.ftc.teamcode.AutonomousOld.Movements;
-
-import org.firstinspires.ftc.teamcode.AutonomousOld.Movements.*;
+package org.firstinspires.ftc.teamcode.Movements;
 
 public class MovementManager {
     public Action[] actions = {};
