@@ -31,7 +31,7 @@ public class MainOp extends MainOpBase {
   public Gamepad gamepad;
 
   // Dynamic Constants
-  private int armIntakePos = 180;
+  private int armIntakePos = 160;
   private double wristIntakePos = 0.35;
   public boolean shouldOpenHandAtIntake = true;
 
@@ -104,8 +104,8 @@ public class MainOp extends MainOpBase {
   private Servo.Direction handDirection = Servo.Direction.FORWARD;
 
   public boolean isHandClosed = false;
-  private double handOpenPos = 0.7;
-  private double handClosedPos = 0.95;
+  private double handOpenPos = 0.75;
+  private double handClosedPos = 1;
 
   /**
    * This function is executed when this Op Mode is selected from the Driver
@@ -314,9 +314,16 @@ public class MainOp extends MainOpBase {
         if (gamepad.b) {
           setArmPosition(armIntakePos);
           wristPos = wristIntakePos;
+          
           if (shouldOpenHandAtIntake) {
             isHandClosed = false;
           }
+        }
+
+        // Protected Position
+        if (gamepad.a) {
+          setArmPosition(0);
+          wristPos = 1;
         }
       }
 
@@ -332,9 +339,7 @@ public class MainOp extends MainOpBase {
     telemetry.update();
   }
 
-  public void setupExtraTelemetry() {
-  }
-
+  public void setupExtraTelemetry() {}
   private void updateTelemetry() {
     telemetry.addData("State", new Func<String>() {
       @Override
@@ -348,7 +353,7 @@ public class MainOp extends MainOpBase {
             return (frames / getRuntime()) + "/s";
           }
         });
-
+        
     setupExtraTelemetry();
 
     telemetry.addLine();

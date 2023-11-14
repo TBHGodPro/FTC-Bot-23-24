@@ -15,9 +15,6 @@ public class Op2 extends BaseOp {
             new GamepadAction(GamepadButton.b),
             new WaitAction(150),
             new GamepadAction(GamepadButton.y),
-            new GamepadAction(GamepadDynamicInput.right_trigger, 0.5f),
-            new WaitAction(300),
-            new GamepadAction(GamepadDynamicInput.right_trigger, 0f),
 
             // ACTIONS HERE
     };

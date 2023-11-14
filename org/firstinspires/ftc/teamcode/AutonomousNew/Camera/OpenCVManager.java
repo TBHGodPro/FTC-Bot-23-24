@@ -20,7 +20,7 @@ public class OpenCVManager {
 
         this.camera = camera;
 
-        processor = new ImageProcessor();
+        processor = new ImageProcessor(alliance);
     }
 
     public void create() {
