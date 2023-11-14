@@ -61,12 +61,12 @@ class AutonomousController extends Thread {
         new MovementRunner(op, movements, gamepad).run();
 
         waitTime(500);
+        
+        gamepad.a = true;
 
-        op.wristPos = 1;
-
-        waitTime(500);
-
-        op.setArmPosition(0);
+        waitTime(250);
+        
+        gamepad.a = false;
     }
 
     private void waitTime(long ms) {
