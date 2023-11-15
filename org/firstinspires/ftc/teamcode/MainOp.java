@@ -32,7 +32,7 @@ public class MainOp extends MainOpBase {
   public Gamepad gamepad;
 
   // Dynamic Constants
-  public double turningNonlinearity = 1.65; // 1 = linear
+  private double turningNonlinearity = 1.65; // 1 = linear
 
   private int armIntakePos = 210;
   private double wristIntakePos = 0.3;

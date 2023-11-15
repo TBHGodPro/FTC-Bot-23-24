@@ -118,10 +118,6 @@ public class Blue_Backstage extends BaseOp {
         new MovementRunner(this, movements, gamepad).run();
     }
 
-    public void runnerCustomAction() {
-
-    }
-
     public void setupExtraTelemetry() {
         telemetry.addLine();
 
