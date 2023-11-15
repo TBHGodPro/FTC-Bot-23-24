@@ -35,7 +35,8 @@ public class MainOp extends MainOpBase {
   public Gamepad gamepad;
 
   // Dynamic Constants
-  private double turningNonlinearity = 1.5; // 1 = linear
+  private double turningNonlinearity = 1.75; // 1 = linear
+  private double armNonlinearity = 2; // 1 = linear
 
   private int armIntakePos = 180;
   private double wristIntakePos = 0.43;
@@ -178,7 +179,6 @@ public class MainOp extends MainOpBase {
       angles = imu.getRobotYawPitchRollAngles();
 
       straightAngle = angles.getYaw(AngleUnit.DEGREES);
-      currentAngle = straightAngle;
 
       while (opModeIsActive()) {
         // Frame Rate Counter
@@ -289,6 +289,7 @@ public class MainOp extends MainOpBase {
         }
 
         // Arm Handling
+
         // - Not At Target Position
         if (!isArmAtTarget()) {
           if (arm.getTargetPosition() != armTargetPos) {
@@ -307,8 +308,8 @@ public class MainOp extends MainOpBase {
 
           double armPower = 0;
 
-          armPower += gamepad.right_trigger;
-          armPower -= gamepad.left_trigger;
+          armPower += Math.pow(gamepad.right_trigger, armNonlinearity);
+          armPower -= Math.pow(gamepad.left_trigger, armNonlinearity);
 
           // Static Pos Power
           if (armPower == 0) {
