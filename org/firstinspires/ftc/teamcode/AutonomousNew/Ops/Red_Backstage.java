@@ -16,9 +16,9 @@ import org.firstinspires.ftc.robotcore.external.Func;
 public class Red_Backstage extends BaseOp {
     public static final Action[] move_left = {
             // Go to Stripe
-            new MoveAction(MoveDirection.FORWARD, 1400, 1.2),
-            new TurnAction(-90, 0.6),
-            new MoveAction(MoveDirection.FORWARD, 150, 0.15),
+            new MoveAction(MoveDirection.FORWARD, 1400, 0.9),
+            new TurnAction(-90, 0.4),
+            new MoveAction(MoveDirection.FORWARD, 200, 0.15),
 
             // Set down Pixels
             new GamepadAction(GamepadButton.b),
@@ -41,11 +41,65 @@ public class Red_Backstage extends BaseOp {
             new GamepadAction(GamepadButton.right_bumper, false),
 
             // Go to Backboard
-            new TurnAction(180, 1),
-            new MoveAction(MoveDirection.FORWARD, 1850, 1.3),
+            new TurnAction(-180, 0.7),
+            new MoveAction(MoveDirection.FORWARD, 1850, 1),
 
             // Go to Correct Backboard Position
-            new MoveAction(MoveDirection.LEFT, 450, 0.3),
+            new MoveAction(MoveDirection.LEFT, 550, 0.3),
+
+            // Move closer to Backboard
+            new MoveAction(MoveDirection.FORWARD, 100, 0.3),
+
+            // Drop Pixel
+            new GamepadAction(GamepadButton.y),
+
+            // Move Away from Backboard
+            new MoveAction(MoveDirection.BACKWARD, 400, 0.35),
+
+            // Turn to Start Position
+            new TurnAction(-90, 0.5),
+
+            // Reset Arm (No Pause)
+            new GamepadAction(GamepadButton.a, true),
+
+            // Move to Parking Area
+            new MoveAction(MoveDirection.BACKWARD, 1650, 0.9),
+            new MoveAction(MoveDirection.RIGHT, 600, 0.3),
+    };
+
+    public static final Action[] move_center = {
+            // Strafe into Position
+            new MoveAction(MoveDirection.RIGHT, 225, 0.2),
+
+            // Go to Stripe
+            new MoveAction(MoveDirection.FORWARD, 1400, 0.9),
+
+            // Set down Pixels
+            new GamepadAction(GamepadButton.b),
+            new WaitAction(500),
+            new GamepadAction(GamepadButton.y),
+
+            // Recollect Yellow Pixel
+            new WaitAction(300),
+            new MoveAction(MoveDirection.BACKWARD, 175, 0.2),
+            new GamepadAction(GamepadButton.x),
+
+            // Lift Arm
+            new GamepadAction(GamepadDynamicInput.right_trigger, 0.5f),
+            new WaitAction(400),
+            new GamepadAction(GamepadDynamicInput.right_trigger, 0),
+
+            // Lift Wrist
+            new GamepadAction(GamepadButton.right_bumper, true),
+            new WaitAction(850),
+            new GamepadAction(GamepadButton.right_bumper, false),
+
+            // Go to Backboard
+            new TurnAction(90, 0.4),
+            new MoveAction(MoveDirection.FORWARD, 1750, 1),
+
+            // Go to Correct Backboard Position
+            new MoveAction(MoveDirection.LEFT, 400, 0.3),
 
             // Move closer to Backboard
             new MoveAction(MoveDirection.FORWARD, 150, 0.3),
@@ -57,16 +111,72 @@ public class Red_Backstage extends BaseOp {
             new MoveAction(MoveDirection.BACKWARD, 400, 0.35),
 
             // Turn to Start Position
-            new TurnAction(-90, 0.7),
+            new TurnAction(-90, 0.5),
+
+            // Reset Arm (No Pause)
+            new GamepadAction(GamepadButton.a, true),
 
             // Move to Parking Area
-            new MoveAction(MoveDirection.BACKWARD, 1550, 1.2),
-            new MoveAction(MoveDirection.RIGHT, 600, 0.5),
+            new MoveAction(MoveDirection.BACKWARD, 1400, 0.9),
+            new MoveAction(MoveDirection.RIGHT, 800, 0.3),
     };
 
-    public static final Action[] move_center = {};
+    public static final Action[] move_right = {
+            // Strafe into Position
+            new MoveAction(MoveDirection.LEFT, 225, 0.2),
 
-    public static final Action[] move_right = {};
+            // Go to Stripe
+            new MoveAction(MoveDirection.FORWARD, 1200, 0.7),
+            new TurnAction(-90, 0.4),
+            new MoveAction(MoveDirection.BACKWARD, 1300, 0.7),
+            new MoveAction(MoveDirection.RIGHT, 300, 0.35),
+
+            // Set down Pixels
+            new GamepadAction(GamepadButton.b),
+            new WaitAction(500),
+            new GamepadAction(GamepadButton.y),
+
+            // Recollect Yellow Pixel
+            new WaitAction(300),
+            new MoveAction(MoveDirection.BACKWARD, 190, 0.2),
+            new GamepadAction(GamepadButton.x),
+
+            // Lift Arm
+            new GamepadAction(GamepadDynamicInput.right_trigger, 0.5f),
+            new WaitAction(400),
+            new GamepadAction(GamepadDynamicInput.right_trigger, 0),
+
+            // Lift Wrist
+            new GamepadAction(GamepadButton.right_bumper, true),
+            new WaitAction(850),
+            new GamepadAction(GamepadButton.right_bumper, false),
+
+            // Go to Backboard
+            new TurnAction(-180, 0.7),
+            new MoveAction(MoveDirection.FORWARD, 675, 0.6),
+
+            // Go to Correct Backboard Position
+            new MoveAction(MoveDirection.RIGHT, 500, 0.3),
+
+            // Move closer to Backboard
+            new MoveAction(MoveDirection.FORWARD, 100, 0.2),
+
+            // Drop Pixel
+            new GamepadAction(GamepadButton.y),
+
+            // Move Away from Backboard
+            new MoveAction(MoveDirection.BACKWARD, 400, 0.25),
+
+            // Reset Arm (No Pause)
+            new GamepadAction(GamepadButton.a, true),
+
+            // Turn to Start Position
+            new TurnAction(-90, 0.4),
+
+            // Move to Parking Area
+            new MoveAction(MoveDirection.BACKWARD, 875, 0.6),
+            new MoveAction(MoveDirection.RIGHT, 800, 0.3),
+    };
 
     public PossiblePosition position;
 
@@ -110,6 +220,9 @@ public class Red_Backstage extends BaseOp {
         // - MOVE
 
         new MovementRunner(this, movements, gamepad).run();
+    }
+
+    public void runnerCustomAction() {
     }
 
     public void setupExtraTelemetry() {

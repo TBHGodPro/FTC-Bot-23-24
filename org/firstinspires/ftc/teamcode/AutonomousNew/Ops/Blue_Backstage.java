@@ -14,64 +14,171 @@ import org.firstinspires.ftc.robotcore.external.Func;
 
 @Autonomous(name = "Blue Backstage", group = "New Autonomous")
 public class Blue_Backstage extends BaseOp {
-    public static final Action[] move_left = {};
+    public static final Action[] move_left = {
+            // Strafe into Position
+            new MoveAction(MoveDirection.LEFT, 225, 0.2),
 
-    public static final Action[] move_center = {};
+            // Go to Stripe
+            new MoveAction(MoveDirection.FORWARD, 1200, 0.7),
+            new TurnAction(90, 0.4),
+            new MoveAction(MoveDirection.BACKWARD, 1260, 0.7),
+            new MoveAction(MoveDirection.LEFT, 300, 0.35),
+
+            // Set down Pixels
+            new GamepadAction(GamepadButton.b),
+            new WaitAction(500),
+            new GamepadAction(GamepadButton.y),
+
+            // Recollect Yellow Pixel
+            new WaitAction(300),
+            new MoveAction(MoveDirection.BACKWARD, 190, 0.2),
+            new GamepadAction(GamepadButton.x),
+
+            // Lift Arm
+            new GamepadAction(GamepadDynamicInput.right_trigger, 0.5f),
+            new WaitAction(400),
+            new GamepadAction(GamepadDynamicInput.right_trigger, 0),
+
+            // Lift Wrist
+            new GamepadAction(GamepadButton.right_bumper, true),
+            new WaitAction(850),
+            new GamepadAction(GamepadButton.right_bumper, false),
+
+            // Go to Backboard
+            new TurnAction(180, 0.7),
+            new MoveAction(MoveDirection.FORWARD, 675, 0.6),
+
+            // Go to Correct Backboard Position
+            new MoveAction(MoveDirection.LEFT, 400, 0.3),
+
+            // Move closer to Backboard
+            new MoveAction(MoveDirection.FORWARD, 200, 0.2),
+
+            // Drop Pixel
+            new GamepadAction(GamepadButton.y),
+
+            // Move Away from Backboard
+            new MoveAction(MoveDirection.BACKWARD, 400, 0.25),
+
+            // Reset Arm (No Pause)
+            new GamepadAction(GamepadButton.a, true),
+
+            // Turn to Start Position
+            new TurnAction(90, 0.4),
+
+            // Move to Parking Area
+            new MoveAction(MoveDirection.BACKWARD, 875, 0.6),
+            new MoveAction(MoveDirection.LEFT, 800, 0.3),
+    };
+
+    public static final Action[] move_center = {
+            // Strafe into Position
+            new MoveAction(MoveDirection.LEFT, 450, 0.4),
+
+            // Go to Stripe
+            new MoveAction(MoveDirection.FORWARD, 1450, 0.9),
+
+            // Set down Pixels
+            new GamepadAction(GamepadButton.b),
+            new WaitAction(500),
+            new GamepadAction(GamepadButton.y),
+
+            // Recollect Yellow Pixel
+            new WaitAction(300),
+            new MoveAction(MoveDirection.BACKWARD, 175, 0.2),
+            new GamepadAction(GamepadButton.x),
+
+            // Lift Arm
+            new GamepadAction(GamepadDynamicInput.right_trigger, 0.5f),
+            new WaitAction(400),
+            new GamepadAction(GamepadDynamicInput.right_trigger, 0),
+
+            // Lift Wrist
+            new GamepadAction(GamepadButton.right_bumper, true),
+            new WaitAction(850),
+            new GamepadAction(GamepadButton.right_bumper, false),
+
+            // Go to Backboard
+            new TurnAction(-90, 0.4),
+            new MoveAction(MoveDirection.FORWARD, 1750, 1),
+
+            // Go to Correct Backboard Position
+            new MoveAction(MoveDirection.RIGHT, 400, 0.3),
+
+            // Move closer to Backboard
+            new MoveAction(MoveDirection.FORWARD, 200, 0.3),
+
+            // Drop Pixel
+            new GamepadAction(GamepadButton.y),
+
+            // Move Away from Backboard
+            new MoveAction(MoveDirection.BACKWARD, 400, 0.35),
+
+            // Turn to Start Position
+            new TurnAction(90, 0.5),
+
+            // Reset Arm (No Pause)
+            new GamepadAction(GamepadButton.a, true),
+
+            // Move to Parking Area
+            new MoveAction(MoveDirection.BACKWARD, 1400, 0.9),
+            new MoveAction(MoveDirection.LEFT, 800, 0.3),
+    };
 
     public static final Action[] move_right = {
-                // Strafe into Posi
-                new MoveAction(MoveDirection.LEFT, 425, 0
+            // Strafe into Position
+            new MoveAction(MoveDirection.LEFT, 425, 0.4),
 
-                // Go to St
-                new MoveAction(MoveDirection.FORWARD, 1400, 0
-                new TurnAction(90, 0
-                new MoveAction(MoveDirection.FORWARD, 150, 0.
+            // Go to Stripe
+            new MoveAction(MoveDirection.FORWARD, 1400, 0.9),
+            new TurnAction(90, 0.4),
+            new MoveAction(MoveDirection.FORWARD, 200, 0.15),
 
-                // Set down Pi
-                new GamepadAction(GamepadButton
-                new WaitAction(2
-                new GamepadAction(GamepadButton
+            // Set down Pixels
+            new GamepadAction(GamepadButton.b),
+            new WaitAction(250),
+            new GamepadAction(GamepadButton.y),
 
-                // Recollect Yellow P
-                new WaitAction(3
-                new MoveAction(MoveDirection.BACKWARD, 200, 0
-                new GamepadAction(GamepadButton
+            // Recollect Yellow Pixel
+            new WaitAction(300),
+            new MoveAction(MoveDirection.BACKWARD, 200, 0.2),
+            new GamepadAction(GamepadButton.x),
 
-                // Lift
-                new GamepadAction(GamepadDynamicInput.right_trigger, 0.
-                new WaitAction(4
-                new GamepadAction(GamepadDynamicInput.right_trigger,
+            // Lift Arm
+            new GamepadAction(GamepadDynamicInput.right_trigger, 0.5f),
+            new WaitAction(400),
+            new GamepadAction(GamepadDynamicInput.right_trigger, 0),
 
-                // Lift W
-                new GamepadAction(GamepadButton.right_bumper, tr
-                new WaitAction(8
-                new GamepadAction(GamepadButton.right_bumper, fal
+            // Lift Wrist
+            new GamepadAction(GamepadButton.right_bumper, true),
+            new WaitAction(850),
+            new GamepadAction(GamepadButton.right_bumper, false),
 
-                // Go to Backb
-                new TurnAction(180, 0
-                new MoveAction(MoveDirection.FORWARD, 1850,
+            // Go to Backboard
+            new TurnAction(180, 0.7),
+            new MoveAction(MoveDirection.FORWARD, 1850, 1),
 
-                // Go to Correct Backboard Posi
-                new MoveAction(MoveDirection.RIGHT, 550, 0
+            // Go to Correct Backboard Position
+            new MoveAction(MoveDirection.RIGHT, 550, 0.3),
 
-                // Move closer to Backb
-                new MoveAction(MoveDirection.FORWARD, 150, 0
+            // Move closer to Backboard
+            new MoveAction(MoveDirection.FORWARD, 100, 0.3),
 
-                // Drop P
-                new GamepadAction(GamepadButton
+            // Drop Pixel
+            new GamepadAction(GamepadButton.y),
 
-                // Move Away from Backb
-                new MoveAction(MoveDirection.BACKWARD, 400, 0.
+            // Move Away from Backboard
+            new MoveAction(MoveDirection.BACKWARD, 400, 0.35),
 
-                // Turn to Start Posi
-                new TurnAction(90, 0
+            // Turn to Start Position
+            new TurnAction(90, 0.5),
 
-                // Reset Arm (No Pa
-                new GamepadAction(GamepadButton.a, tr
+            // Reset Arm (No Pause)
+            new GamepadAction(GamepadButton.a, true),
 
-                // Move to Parking 
-                new MoveAction(MoveDirection.BACKWARD, 1550, 0
-                new MoveAction(MoveDirection.LEFT, 600, 0.3),
+            // Move to Parking Area
+            new MoveAction(MoveDirection.BACKWARD, 1650, 0.9),
+            new MoveAction(MoveDirection.LEFT, 600, 0.3),
     };
 
     public PossiblePosition position;
@@ -116,6 +223,9 @@ public class Blue_Backstage extends BaseOp {
         // - MOVE
 
         new MovementRunner(this, movements, gamepad).run();
+    }
+
+    public void runnerCustomAction() {
     }
 
     public void setupExtraTelemetry() {
