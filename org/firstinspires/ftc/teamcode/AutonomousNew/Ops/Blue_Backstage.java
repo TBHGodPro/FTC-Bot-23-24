@@ -119,7 +119,7 @@ public class Blue_Backstage extends BaseOp {
     }
 
     public void runnerCustomAction() {
-    
+
     }
 
     public void setupExtraTelemetry() {
@@ -134,7 +134,7 @@ public class Blue_Backstage extends BaseOp {
             public String value() {
                 return position == null ? ("DECIDING (" + manager.processor.position + ")") : position.name();
             }
-        })
+        });
     }
 
     public Alliance getAlliance() {
