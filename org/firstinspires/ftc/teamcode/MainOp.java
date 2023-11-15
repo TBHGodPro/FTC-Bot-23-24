@@ -32,6 +32,8 @@ public class MainOp extends MainOpBase {
   public Gamepad gamepad;
 
   // Dynamic Constants
+  public double turningNonlinearity = 1.65; // 1 = linear
+
   private int armIntakePos = 210;
   private double wristIntakePos = 0.3;
   public boolean shouldOpenHandAtIntake = true;
@@ -238,10 +240,10 @@ public class MainOp extends MainOpBase {
         frontRightPower -= controlX;
 
         // Turning
-        backLeftPower += gamepad.right_stick_x;
-        backRightPower -= gamepad.right_stick_x;
-        frontLeftPower += gamepad.right_stick_x;
-        frontRightPower -= gamepad.right_stick_x;
+        backLeftPower += gamepad.right_stick_x ^ turningNonlinearity;
+        backRightPower -= gamepad.right_stick_x ^ turningNonlinearity;
+        frontLeftPower += gamepad.right_stick_x ^ turningNonlinearity;
+        frontRightPower -= gamepad.right_stick_x ^ turningNonlinearity;
 
         // Send Power to Motors
         if (isWheelAtTarget()) {
