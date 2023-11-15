@@ -32,10 +32,10 @@ public class MainOp extends MainOpBase {
   public Gamepad gamepad;
 
   // Dynamic Constants
-  private double turningNonlinearity = 1.65; // 1 = linear
+  private double turningNonlinearity = 1.5; // 1 = linear
 
-  private int armIntakePos = 210;
-  private double wristIntakePos = 0.3;
+  private int armIntakePos = 180;
+  private double wristIntakePos = 0.43;
   public boolean shouldOpenHandAtIntake = true;
 
   // Bot
@@ -90,7 +90,7 @@ public class MainOp extends MainOpBase {
   private int armVerticalPos = 1550;
 
   private Integer armTargetPos = null;
-  private int armSetPosSpeed = 1800;
+  private int armSetPosSpeed = 1400;
 
   private double armManualMaxSpeed = 2200;
 
@@ -156,6 +156,7 @@ public class MainOp extends MainOpBase {
 
     wrist = hardwareMap.get(Servo.class, "wrist");
     wrist.setDirection(wristDirection);
+    wrist.scaleRange(0.25, 1);
 
     hand = hardwareMap.get(Servo.class, "hand");
     hand.setDirection(handDirection);
@@ -240,10 +241,16 @@ public class MainOp extends MainOpBase {
         frontRightPower -= controlX;
 
         // Turning
-        backLeftPower += gamepad.right_stick_x ^ turningNonlinearity;
-        backRightPower -= gamepad.right_stick_x ^ turningNonlinearity;
-        frontLeftPower += gamepad.right_stick_x ^ turningNonlinearity;
-        frontRightPower -= gamepad.right_stick_x ^ turningNonlinearity;
+        double turnPower;
+        if (gamepad.right_stick_x >= 0) {
+          turnPower = Math.pow(gamepad.right_stick_x, turningNonlinearity);
+        } else {
+          turnPower = -Math.pow(-gamepad.right_stick_x, turningNonlinearity);
+        }
+        backLeftPower += turnPower;
+        backRightPower -= turnPower;
+        frontLeftPower += turnPower;
+        frontRightPower -= turnPower;
 
         // Send Power to Motors
         if (isWheelAtTarget()) {
