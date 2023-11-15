@@ -46,7 +46,7 @@ class AutonomousController extends Thread {
     }
 
     public void run() {
-        op.shouldOpenHandAtIntake = false;
+        op.isAutonomous = true;
 
         op.isHandClosed = true;
 
