@@ -316,7 +316,7 @@ public class MainOp extends MainOpBase {
         if (gamepad.b) {
           setArmPosition(armIntakePos);
           wristPos = wristIntakePos;
-          
+
           if (shouldOpenHandAtIntake) {
             isHandClosed = false;
           }
@@ -341,7 +341,9 @@ public class MainOp extends MainOpBase {
     telemetry.update();
   }
 
-  public void setupExtraTelemetry() {}
+  public void setupExtraTelemetry() {
+  }
+
   private void updateTelemetry() {
     telemetry.addData("State", new Func<String>() {
       @Override
@@ -355,7 +357,7 @@ public class MainOp extends MainOpBase {
             return (frames / getRuntime()) + "/s";
           }
         });
-        
+
     setupExtraTelemetry();
 
     telemetry.addLine();
@@ -435,7 +437,8 @@ public class MainOp extends MainOpBase {
         .addData("Move Time", new Func<String>() {
           @Override
           public String value() {
-            return wheelSetPositionTargetTime == null ? "" : "Target = " + wheelSetPositionTargetTime + ", Current = " + wheelSetPositionMoveTime.seconds();
+            return wheelSetPositionTargetTime == null ? ""
+                : "Target = " + wheelSetPositionTargetTime + ", Current = " + wheelSetPositionMoveTime.seconds();
           }
         });
 
@@ -474,7 +477,7 @@ public class MainOp extends MainOpBase {
       frontRightTargetPos = null;
 
       wheelSetPositionTargetTime = null;
-      
+
       wheelSetPositionMoveTime = null;
 
       return true;
@@ -497,14 +500,15 @@ public class MainOp extends MainOpBase {
       frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    if ((!backLeft.isBusy() && !backRight.isBusy() && !frontLeft.isBusy() && !frontRight.isBusy()) || (wheelSetPositionTargetTime + 200) <= wheelSetPositionMoveTime.seconds()) {
+    if ((!backLeft.isBusy() && !backRight.isBusy() && !frontLeft.isBusy() && !frontRight.isBusy())
+        || (wheelSetPositionTargetTime + 200) <= wheelSetPositionMoveTime.seconds()) {
       backLeftTargetPos = null;
       backRightTargetPos = null;
       frontLeftTargetPos = null;
       frontRightTargetPos = null;
 
       wheelSetPositionTargetTime = null;
-      
+
       wheelSetPositionMoveTime = null;
 
       return true;
@@ -523,7 +527,7 @@ public class MainOp extends MainOpBase {
     backRightTargetPos = Math.round(backRightPos);
     frontLeftTargetPos = Math.round(frontLeftPos);
     frontRightTargetPos = Math.round(frontRightPos);
-    
+
     wheelSetPositionMoveTime = new ElapsedTime();
   }
 
