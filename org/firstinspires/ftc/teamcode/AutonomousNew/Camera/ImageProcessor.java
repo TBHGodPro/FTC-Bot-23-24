@@ -16,9 +16,9 @@ import org.opencv.imgproc.Imgproc;
 
 public class ImageProcessor implements VisionProcessor {
         // Alliance
-        
+
         public Alliance alliance;
-        
+
         // Static Colors
 
         private static final Scalar REGION_BOUNDARY = new Scalar(0, 0, 255);
@@ -74,11 +74,11 @@ public class ImageProcessor implements VisionProcessor {
 
         public ImageProcessor(Alliance alliance) {
                 this.alliance = alliance;
-                
+
                 switch (alliance) {
                         case RED: {
-                                lower = new Scalar(10,5,1);
-                                upper = new Scalar(255,255,255);
+                                lower = new Scalar(10, 5, 1);
+                                upper = new Scalar(255, 255, 255);
 
                                 break;
                         }
@@ -146,15 +146,15 @@ public class ImageProcessor implements VisionProcessor {
                 int avg3 = (int) Core.mean(region3_Mat).val[0];
 
                 // - Find Best Average
-                
+
                 int found;
-                
+
                 if (alliance == Alliance.RED) {
                         int foundOneTwo = Math.min(avg1, avg2);
                         found = Math.min(foundOneTwo, avg3);
                 } else {
                         int foundOneTwo = Math.max(avg1, avg2);
-                        found = Math.max(foundOneTwo, avg3);       
+                        found = Math.max(foundOneTwo, avg3);
                 }
 
                 // Display and Record Findings

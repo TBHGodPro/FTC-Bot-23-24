@@ -55,18 +55,20 @@ class AutonomousController extends Thread {
         waitTime(500);
 
         op.runOP();
-        
+
         waitTime(500);
 
         op.manager.close();
-        
+
         gamepad.a = true;
 
         waitTime(250);
-        
+
         gamepad.a = false;
-        
-        while(op.opModeIsActive()) {waitTime(10);}
+
+        while (op.opModeIsActive()) {
+            waitTime(10);
+        }
     }
 
     private void waitTime(long ms) {
