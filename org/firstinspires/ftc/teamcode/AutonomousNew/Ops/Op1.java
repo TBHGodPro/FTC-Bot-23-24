@@ -42,6 +42,6 @@ public class Op1 extends BaseOp {
     }
 
     public Alliance getAlliance() {
-        return Alliance.BLUE;
+        return Alliance.RED;
     };
 }

@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 enum BotState {
   Loading,
@@ -31,8 +32,8 @@ public class MainOp extends MainOpBase {
   public Gamepad gamepad;
 
   // Dynamic Constants
-  private int armIntakePos = 160;
-  private double wristIntakePos = 0.35;
+  private int armIntakePos = 210;
+  private double wristIntakePos = 0.3;
   public boolean shouldOpenHandAtIntake = true;
 
   // Bot
@@ -74,6 +75,7 @@ public class MainOp extends MainOpBase {
   private Integer frontLeftTargetPos = null;
   private Integer frontRightTargetPos = null;
   public Double wheelSetPositionTargetTime = null;
+  private ElapsedTime wheelSetPositionMoveTime = null;
 
   private double wheelSetPositionPower = 0.4;
 
@@ -278,7 +280,7 @@ public class MainOp extends MainOpBase {
 
           // Static Pos Power
           if (armPower == 0) {
-            arm.setVelocity(arm.getCurrentPosition() > armVerticalPos ? -1 : 1);
+            arm.setVelocity(arm.getCurrentPosition() > armVerticalPos ? -2 : 2);
           } else {
             arm.setVelocity(armPower * armManualMaxSpeed);
           }
@@ -429,6 +431,12 @@ public class MainOp extends MainOpBase {
                 : " " + backLeft.getCurrentPosition() + " " + backRight.getCurrentPosition() + " "
                     + frontLeft.getCurrentPosition() + " " + frontRight.getCurrentPosition();
           }
+        })
+        .addData("Move Time", new Func<String>() {
+          @Override
+          public String value() {
+            return wheelSetPositionTargetTime == null ? "" : "Target = " + wheelSetPositionTargetTime + ", Current = " + wheelSetPositionMoveTime.seconds();
+          }
         });
 
     telemetry.addLine();
@@ -459,13 +467,15 @@ public class MainOp extends MainOpBase {
 
   public boolean isWheelAtTarget() {
     if (backLeftTargetPos == null || backRightTargetPos == null || frontLeftTargetPos == null
-        || frontRightTargetPos == null || wheelSetPositionTargetTime == null) {
+        || frontRightTargetPos == null || wheelSetPositionTargetTime == null || wheelSetPositionMoveTime == null) {
       backLeftTargetPos = null;
       backRightTargetPos = null;
       frontLeftTargetPos = null;
       frontRightTargetPos = null;
 
       wheelSetPositionTargetTime = null;
+      
+      wheelSetPositionMoveTime = null;
 
       return true;
     }
@@ -487,13 +497,15 @@ public class MainOp extends MainOpBase {
       frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
-    if (!backLeft.isBusy() && !backRight.isBusy() && !frontLeft.isBusy() && !frontRight.isBusy()) {
+    if ((!backLeft.isBusy() && !backRight.isBusy() && !frontLeft.isBusy() && !frontRight.isBusy()) || (wheelSetPositionTargetTime + 200) <= wheelSetPositionMoveTime.seconds()) {
       backLeftTargetPos = null;
       backRightTargetPos = null;
       frontLeftTargetPos = null;
       frontRightTargetPos = null;
 
       wheelSetPositionTargetTime = null;
+      
+      wheelSetPositionMoveTime = null;
 
       return true;
     }
@@ -511,6 +523,8 @@ public class MainOp extends MainOpBase {
     backRightTargetPos = Math.round(backRightPos);
     frontLeftTargetPos = Math.round(frontLeftPos);
     frontRightTargetPos = Math.round(frontRightPos);
+    
+    wheelSetPositionMoveTime = new ElapsedTime();
   }
 
   public void resetWheelPositions() {

@@ -12,6 +12,7 @@ public class MovementRunner {
     public Gamepad gamepad;
 
     private double turn_mult = 12.825;
+    private long button_tap_timeout = 500;
 
     public MovementRunner(MainOp op, MovementManager movements, Gamepad gamepad) {
         this.op = op;
@@ -97,7 +98,7 @@ public class MovementRunner {
                             if (action.active == null) {
                                 field.set(gamepad, true);
 
-                                waitTime(movements.button_tap_timeout);
+                                waitTime(button_tap_timeout);
 
                                 field.set(gamepad, false);
                             } else {

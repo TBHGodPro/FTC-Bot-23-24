@@ -20,6 +20,4 @@ public class MovementManager {
     public MovementManager(Action[] opActions) {
         actions = opActions;
     }
-
-    public long button_tap_timeout = 500;
 }
