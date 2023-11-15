@@ -15,6 +15,10 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 public class ImageProcessor implements VisionProcessor {
+        // Alliance
+        
+        public Alliance alliance;
+        
         // Static Colors
 
         private static final Scalar REGION_BOUNDARY = new Scalar(0, 0, 255);
@@ -36,11 +40,11 @@ public class ImageProcessor implements VisionProcessor {
         private static final int SCREEN_HEIGHT = 480;
 
         private static final int REGION_WIDTH = SCREEN_WIDTH / 3;
-        private static final int REGION_HEIGHT = SCREEN_HEIGHT - 150;
+        private static final int REGION_HEIGHT = SCREEN_HEIGHT - 275;
 
-        private static final Point REGION1_TOPLEFT_ANCHOR = new Point(0, 75);
-        private static final Point REGION2_TOPLEFT_ANCHOR = new Point(SCREEN_WIDTH / 3, 75);
-        private static final Point REGION3_TOPLEFT_ANCHOR = new Point(SCREEN_WIDTH / 1.5, 75);
+        private static final Point REGION1_TOPLEFT_ANCHOR = new Point(0, 275);
+        private static final Point REGION2_TOPLEFT_ANCHOR = new Point(SCREEN_WIDTH / 3, 275);
+        private static final Point REGION3_TOPLEFT_ANCHOR = new Point(SCREEN_WIDTH / 1.5, 275);
 
         private Point region1_A = new Point(
                         REGION1_TOPLEFT_ANCHOR.x,
@@ -69,10 +73,12 @@ public class ImageProcessor implements VisionProcessor {
         // Constructor
 
         public ImageProcessor(Alliance alliance) {
+                this.alliance = alliance;
+                
                 switch (alliance) {
                         case RED: {
-                                lower = new Scalar(100, 75, 75);
-                                upper = new Scalar(255, 200, 200);
+                                lower = new Scalar(10,5,1);
+                                upper = new Scalar(255,255,255);
 
                                 break;
                         }
@@ -99,6 +105,7 @@ public class ImageProcessor implements VisionProcessor {
 
                 Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV);
                 Core.inRange(hsvMat, lower, upper, binaryMat);
+                Core.inRange(hsvMat, lower, upper, input);
 
                 // Draw Region Boundaries
 
@@ -138,14 +145,21 @@ public class ImageProcessor implements VisionProcessor {
                 int avg2 = (int) Core.mean(region2_Mat).val[0];
                 int avg3 = (int) Core.mean(region3_Mat).val[0];
 
-                // - Find Highest Average
-
-                int maxOneTwo = Math.max(avg1, avg2);
-                int max = Math.max(maxOneTwo, avg3);
+                // - Find Best Average
+                
+                int found;
+                
+                if (alliance == Alliance.RED) {
+                        int foundOneTwo = Math.min(avg1, avg2);
+                        found = Math.min(foundOneTwo, avg3);
+                } else {
+                        int foundOneTwo = Math.max(avg1, avg2);
+                        found = Math.max(foundOneTwo, avg3);       
+                }
 
                 // Display and Record Findings
 
-                if (max == avg1) {
+                if (found == avg1) {
                         position = PossiblePosition.LEFT;
 
                         Imgproc.rectangle(
@@ -154,7 +168,7 @@ public class ImageProcessor implements VisionProcessor {
                                         region1_B,
                                         REGION_FILL,
                                         -1);
-                } else if (max == avg2) {
+                } else if (found == avg2) {
                         position = PossiblePosition.CENTER;
 
                         Imgproc.rectangle(
@@ -163,7 +177,7 @@ public class ImageProcessor implements VisionProcessor {
                                         region2_B,
                                         REGION_FILL,
                                         -1);
-                } else if (max == avg3) {
+                } else if (found == avg3) {
                         position = PossiblePosition.RIGHT;
 
                         Imgproc.rectangle(
