@@ -50,7 +50,7 @@ class AutonomousController extends Thread {
 
         movements.resetActions();
 
-        op.shouldOpenHandAtIntake = false;
+        op.isAutonomous = true;
 
         op.isHandClosed = true;
 

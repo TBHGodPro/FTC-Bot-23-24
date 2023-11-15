@@ -28,6 +28,9 @@ abstract class MainOpBase extends LinearOpMode {
 
 @TeleOp(name = "MainOp")
 public class MainOp extends MainOpBase {
+  // Autonomous
+  public Boolean isAutonomous;
+
   // Gamepad
   public Gamepad gamepad;
 
@@ -36,7 +39,6 @@ public class MainOp extends MainOpBase {
 
   private int armIntakePos = 180;
   private double wristIntakePos = 0.43;
-  public boolean shouldOpenHandAtIntake = true;
 
   // Bot
   private BotState state;
@@ -61,12 +63,6 @@ public class MainOp extends MainOpBase {
 
   private double dpad_up_down_power = 0.4;
   private double dpad_left_right_power = 0.25;
-
-  public double backLeft_forward_correction = 0.99;
-  public double backRight_forward_correction = 1.00;
-
-  public double backLeft_strafe_correction = 0.85;
-  public double backRight_strafe_correction = 0.8;
 
   private DcMotor.Direction leftWheelDirection = DcMotor.Direction.REVERSE;
   private DcMotor.Direction rightWheelDirection = DcMotor.Direction.FORWARD;
@@ -118,6 +114,10 @@ public class MainOp extends MainOpBase {
    */
   @Override
   public void runOpMode() {
+    if (isAutonomous == null) {
+      isAutonomous = false;
+    }
+
     if (gamepad == null) {
       gamepad = gamepad1;
     }
@@ -233,14 +233,14 @@ public class MainOp extends MainOpBase {
         double frontRightPower = 0;
 
         // Forward/Backward
-        backLeftPower += controlY * backLeft_forward_correction;
-        backRightPower += controlY * backRight_forward_correction;
+        backLeftPower += controlY;
+        backRightPower += controlY;
         frontLeftPower += controlY;
         frontRightPower += controlY;
 
         // Strafing
-        backLeftPower -= controlX * backLeft_strafe_correction;
-        backRightPower += controlX * backRight_strafe_correction;
+        backLeftPower -= controlX;
+        backRightPower += controlX;
         frontLeftPower += controlX;
         frontRightPower -= controlX;
 
@@ -254,15 +254,17 @@ public class MainOp extends MainOpBase {
           turnPower = -Math.pow(-gamepad.right_stick_x, turningNonlinearity);
         }
 
-        // - Yaw Adjustment
-        if (gamepad.right_stick_x != 0) {
-          currentAngle = null;
-        } else {
-          if (currentAngle == null) {
-            currentAngle = rawAngle;
+        // - Yaw Correction
+        if (!isAutonomous) {
+          if (gamepad.right_stick_x != 0) {
+            currentAngle = null;
           } else {
-            if (rawAngle != currentAngle) {
-              turnPower += (rawAngle - currentAngle) / 90;
+            if (currentAngle == null) {
+              currentAngle = rawAngle;
+            } else {
+              if (rawAngle != currentAngle) {
+                turnPower += (rawAngle - currentAngle) / 20;
+              }
             }
           }
         }
@@ -347,7 +349,7 @@ public class MainOp extends MainOpBase {
           setArmPosition(armIntakePos);
           wristPos = wristIntakePos;
 
-          if (shouldOpenHandAtIntake) {
+          if (!isAutonomous) {
             isHandClosed = false;
           }
         }

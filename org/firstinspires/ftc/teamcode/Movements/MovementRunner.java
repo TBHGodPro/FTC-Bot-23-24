@@ -14,6 +14,12 @@ public class MovementRunner {
     private double turn_mult = 12.825;
     private long button_tap_timeout = 500;
 
+    private double backLeft_forward_correction = 0.99;
+    private double backRight_forward_correction = 1.00;
+
+    private double backLeft_strafe_correction = 0.85;
+    private double backRight_strafe_correction = 0.8;
+
     public MovementRunner(MainOp op, MovementManager movements, Gamepad gamepad) {
         this.op = op;
 
@@ -36,31 +42,31 @@ public class MovementRunner {
                 case MOVE: {
                     switch (action.direction) {
                         case FORWARD: {
-                            op.setWheelTargets(action.timeDouble, (int) (action.steps * op.backLeft_forward_correction),
-                                    (int) (action.steps * op.backRight_forward_correction), action.steps, action.steps);
+                            op.setWheelTargets(action.timeDouble, (int) (action.steps * backLeft_forward_correction),
+                                    (int) (action.steps * backRight_forward_correction), action.steps, action.steps);
 
                             break;
                         }
                         case BACKWARD: {
                             op.setWheelTargets(action.timeDouble,
-                                    -((int) (action.steps * op.backLeft_forward_correction)),
-                                    -((int) (action.steps * op.backRight_forward_correction)), -action.steps,
+                                    -((int) (action.steps * backLeft_forward_correction)),
+                                    -((int) (action.steps * backRight_forward_correction)), -action.steps,
                                     -action.steps);
 
                             break;
                         }
 
                         case LEFT: {
-                            op.setWheelTargets(action.timeDouble, (int) (action.steps * op.backLeft_strafe_correction),
-                                    -((int) (action.steps * op.backRight_strafe_correction)), -action.steps,
+                            op.setWheelTargets(action.timeDouble, (int) (action.steps * backLeft_strafe_correction),
+                                    -((int) (action.steps * backRight_strafe_correction)), -action.steps,
                                     action.steps);
 
                             break;
                         }
                         case RIGHT: {
                             op.setWheelTargets(action.timeDouble,
-                                    -((int) (action.steps * op.backLeft_strafe_correction)),
-                                    (int) (action.steps * op.backRight_strafe_correction), action.steps,
+                                    -((int) (action.steps * backLeft_strafe_correction)),
+                                    (int) (action.steps * backRight_strafe_correction), action.steps,
                                     -action.steps);
 
                             break;
