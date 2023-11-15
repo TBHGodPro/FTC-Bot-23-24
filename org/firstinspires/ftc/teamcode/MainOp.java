@@ -51,6 +51,7 @@ public class MainOp extends MainOpBase {
   private YawPitchRollAngles angles;
 
   private double straightAngle;
+  private Double currentAngle;
 
   // Wheels
   private DcMotorEx backLeft;
@@ -177,6 +178,7 @@ public class MainOp extends MainOpBase {
       angles = imu.getRobotYawPitchRollAngles();
 
       straightAngle = angles.getYaw(AngleUnit.DEGREES);
+      currentAngle = straightAngle;
 
       while (opModeIsActive()) {
         // Frame Rate Counter
@@ -209,7 +211,9 @@ public class MainOp extends MainOpBase {
 
         angles = imu.getRobotYawPitchRollAngles();
 
-        double angle = (straightAngle - angles.getYaw(AngleUnit.DEGREES)) * Math.PI / 180;
+        double rawAngle = angles.getYaw(AngleUnit.DEGREES);
+
+        double angle = (straightAngle - rawAngle) * Math.PI / 180;
 
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);
@@ -219,7 +223,7 @@ public class MainOp extends MainOpBase {
 
         // Re-straighten Headless
         if (gamepad.start) {
-          straightAngle = angles.getYaw(AngleUnit.DEGREES);
+          straightAngle = rawAngle;
         }
 
         // Vehicle Control
@@ -241,12 +245,29 @@ public class MainOp extends MainOpBase {
         frontRightPower -= controlX;
 
         // Turning
+
+        // - Non-Linearity
         double turnPower;
         if (gamepad.right_stick_x >= 0) {
           turnPower = Math.pow(gamepad.right_stick_x, turningNonlinearity);
         } else {
           turnPower = -Math.pow(-gamepad.right_stick_x, turningNonlinearity);
         }
+
+        // - Yaw Adjustment
+        if (gamepad.right_stick_x != 0) {
+          currentAngle = null;
+        } else {
+          if (currentAngle == null) {
+            currentAngle = rawAngle;
+          } else {
+            if (rawAngle != currentAngle) {
+              turnPower += (rawAngle - currentAngle) / 90;
+            }
+          }
+        }
+
+        // - Power
         backLeftPower += turnPower;
         backRightPower -= turnPower;
         frontLeftPower += turnPower;
@@ -378,7 +399,14 @@ public class MainOp extends MainOpBase {
       public String value() {
         return round(angles == null ? 0 : angles.getYaw(AngleUnit.DEGREES)) + "°";
       }
-    });
+    })
+        .addData("Desired Angle", new Func<String>() {
+          @Override
+          public String value() {
+            return round(currentAngle == null ? (angles == null ? 0 : angles.getYaw(AngleUnit.DEGREES)) : currentAngle)
+                + "°";
+          }
+        });
 
     telemetry.addLine();
 
