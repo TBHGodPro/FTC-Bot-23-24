@@ -37,9 +37,16 @@ public class MainOp extends MainOpBase {
   // Dynamic Constants
   private double turningNonlinearity = 1.75; // 1 = linear
   private double armNonlinearity = 2; // 1 = linear
+  
+  private int armMaxPos = 2150;
 
-  private int armIntakePos = 180;
-  private double wristIntakePos = 0.43;
+  private int armIntakePos;
+  private int armIntakePosManual = 170;
+  private int armIntakePosAutonomous = 315;
+  private double wristIntakePos = 0.435;
+  
+  private int armBackboardPos = 480;
+  private double wristBackboardPos = 0.75;
 
   // Bot
   private BotState state;
@@ -62,7 +69,7 @@ public class MainOp extends MainOpBase {
   private DcMotorEx frontLeft;
   private DcMotorEx frontRight;
 
-  private double dpad_up_down_power = 0.4;
+  private double dpad_up_down_power = 0.35;
   private double dpad_left_right_power = 0.25;
 
   private DcMotor.Direction leftWheelDirection = DcMotor.Direction.REVERSE;
@@ -77,8 +84,6 @@ public class MainOp extends MainOpBase {
   public Double wheelSetPositionTargetTime = null;
   private ElapsedTime wheelSetPositionMoveTime = null;
 
-  private double wheelSetPositionPower = 0.4;
-
   // Arm
   private DcMotorEx arm;
   private DcMotor.Direction armDirection = DcMotor.Direction.REVERSE;
@@ -88,25 +93,25 @@ public class MainOp extends MainOpBase {
   private int armVerticalPos = 1550;
 
   private Integer armTargetPos = null;
-  private int armSetPosSpeed = 1400;
+  private int armSetPosSpeed = 900;
 
-  private double armManualMaxSpeed = 2200;
+  private double armManualMaxSpeed = 1600;
 
-  private double armSetPositionAccuracy /* Lower is higher accuracy */ = 3.5;
+  private double armSetPositionAccuracy /* Lower is higher accuracy */ = 1.2;
 
   // Wrist
   private Servo wrist;
   private Servo.Direction wristDirection = Servo.Direction.REVERSE;
 
   public double wristPos = 1;
-  private double wristPosInterval = 0.003;
+  private double wristPosInterval = 0.0035;
 
   // Hand
   private Servo hand;
   private Servo.Direction handDirection = Servo.Direction.FORWARD;
 
   public boolean isHandClosed = false;
-  private double handOpenPos = 0.75;
+  private double handOpenPos = 0.65;
   private double handClosedPos = 1;
 
   /**
@@ -122,6 +127,8 @@ public class MainOp extends MainOpBase {
     if (gamepad == null) {
       gamepad = gamepad1;
     }
+    
+    armIntakePos = isAutonomous ? armIntakePosAutonomous : armIntakePosManual;
 
     updateTelemetry();
 
@@ -254,7 +261,7 @@ public class MainOp extends MainOpBase {
           turnPower = -Math.pow(-gamepad.right_stick_x, turningNonlinearity);
         }
 
-        // - Yaw Correction
+        // - Yaw Correction (Not in Autonomous)
         if (!isAutonomous) {
           if (gamepad.right_stick_x != 0) {
             currentAngle = null;
@@ -263,7 +270,7 @@ public class MainOp extends MainOpBase {
               currentAngle = rawAngle;
             } else {
               if (rawAngle != currentAngle) {
-                turnPower += (rawAngle - currentAngle) / 20;
+                turnPower += (rawAngle - currentAngle) / 35;
               }
             }
           }
@@ -289,6 +296,12 @@ public class MainOp extends MainOpBase {
         }
 
         // Arm Handling
+        
+        // - Reset Intake Position
+        if (gamepad.back) {
+          armIntakePos = arm.getCurrentPosition();
+          wristIntakePos = wristPos;
+        }
 
         // - Not At Target Position
         if (!isArmAtTarget()) {
@@ -313,9 +326,14 @@ public class MainOp extends MainOpBase {
 
           // Static Pos Power
           if (armPower == 0) {
-            arm.setVelocity(arm.getCurrentPosition() > armVerticalPos ? -2 : 2);
+            arm.setVelocity(arm.getCurrentPosition() > armVerticalPos ? -3 : 3);
           } else {
-            arm.setVelocity(armPower * armManualMaxSpeed);
+            // Don't Allow Past Max
+            if (armPower <= 0 || (armMaxPos - arm.getCurrentPosition()) > ((armPower * armManualMaxSpeed) / 5)) {
+              arm.setVelocity(armPower * armManualMaxSpeed);
+            } else {
+              arm.setVelocity(3);
+            }
           }
         }
 
@@ -328,9 +346,7 @@ public class MainOp extends MainOpBase {
         }
 
         // Send Power to Wrist
-        if (wrist.getPosition() != wristPos) {
-          wrist.setPosition(wristPos);
-        }
+        wrist.setPosition(wristPos);
 
         // Hand Control
         if (gamepad.x) {
@@ -354,9 +370,15 @@ public class MainOp extends MainOpBase {
             isHandClosed = false;
           }
         }
+        
+        // Backboard Position
+        if (gamepad.a) {
+          setArmPosition(armBackboardPos);
+          wristPos = wristBackboardPos;
+        }
 
         // Protected Position
-        if (gamepad.a) {
+        if (gamepad.guide) {
           setArmPosition(0);
           wristPos = 1;
         }
