@@ -40,8 +40,6 @@ public class MainOp extends MainOpBase {
 
   private double steeringCounterDivisor = 45; // Lower = More Powerful
 
-  private int armMaxPos = 2150;
-
   private int armIntakePos;
   private int armIntakePosManual = 170;
   private int armIntakePosAutonomous = 315;
@@ -49,6 +47,10 @@ public class MainOp extends MainOpBase {
 
   private int armBackboardPos = 480;
   private double wristBackboardPos = 0.715;
+  
+  private int armMaxPos = 1950;
+  private double armManualInterval = 15;
+  private int armSpeed = 1100;
 
   // Bot
   private BotState state;
@@ -94,12 +96,7 @@ public class MainOp extends MainOpBase {
 
   private int armVerticalPos = 1550;
 
-  private Integer armTargetPos = null;
-  private int armSetPosSpeed = 900;
-
-  private double armManualMaxSpeed = 1600;
-
-  private double armSetPositionAccuracy /* Lower is higher accuracy */ = 1.2;
+  private int armTargetPos = 0;
 
   // Wrist
   private Servo wrist;
@@ -182,6 +179,9 @@ public class MainOp extends MainOpBase {
       setState(BotState.Running);
 
       hand.setPosition(isHandClosed ? handClosedPos : handOpenPos);
+
+      arm.setTargetPosition(armTargetPos);
+      arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
       sleep(imuInitTimeoutMS);
 
@@ -305,39 +305,21 @@ public class MainOp extends MainOpBase {
           wristIntakePos = wristPos;
         }
 
-        // - Not At Target Position
-        if (!isArmAtTarget()) {
-          if (arm.getTargetPosition() != armTargetPos) {
-            arm.setTargetPosition(armTargetPos);
-          }
+        // - Control
+        double armPower = 0;
 
-          if (arm.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
-            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-          }
+        armPower += Math.pow(gamepad.right_trigger, armNonlinearity);
+        armPower -= Math.pow(gamepad.left_trigger, armNonlinearity);
 
-          arm.setVelocity(armSetPosSpeed);
+        if ((armTargetPos + (armPower * armManualInterval)) <= armMaxPos) {
+          armTargetPos += (int) (armPower * armManualInterval);
         }
-        // - No Target Position - Manual Control
-        else {
-          arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-          double armPower = 0;
+        // - Set Target Pos
+        arm.setTargetPosition(armTargetPos);
 
-          armPower += Math.pow(gamepad.right_trigger, armNonlinearity);
-          armPower -= Math.pow(gamepad.left_trigger, armNonlinearity);
-
-          // Static Pos Power
-          if (armPower == 0) {
-            arm.setVelocity(arm.getCurrentPosition() > armVerticalPos ? -3 : 3);
-          } else {
-            // Don't Allow Past Max
-            if (armPower <= 0 || (armMaxPos - arm.getCurrentPosition()) > ((armPower * armManualMaxSpeed) / 5)) {
-              arm.setVelocity(armPower * armManualMaxSpeed);
-            } else {
-              arm.setVelocity(3);
-            }
-          }
-        }
+        // - Set Power
+        arm.setVelocity(armSpeed);
 
         // Wrist Control
         if (gamepad.right_bumper) {
@@ -460,7 +442,7 @@ public class MainOp extends MainOpBase {
         .addData("Target", new Func<String>() {
           @Override
           public String value() {
-            return armTargetPos == null ? "NONE" : armTargetPos + "";
+            return armTargetPos + "";
           }
         })
         .addData("Wrist Pos", new Func<String>() {
@@ -511,21 +493,6 @@ public class MainOp extends MainOpBase {
 
   private double round(double value) {
     return Math.round(value * 100) / 100;
-  }
-
-  public boolean isArmAtTarget() {
-    if (armTargetPos == null) {
-      return true;
-    }
-
-    if (Math.round(arm.getCurrentPosition() / armSetPositionAccuracy) == Math
-        .round(armTargetPos / armSetPositionAccuracy)) {
-      armTargetPos = null;
-
-      return true;
-    } else {
-      return false;
-    }
   }
 
   public void setArmPosition(int pos) {
