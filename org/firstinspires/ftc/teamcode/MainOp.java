@@ -38,6 +38,8 @@ public class MainOp extends MainOpBase {
   private double turningNonlinearity = 1.75; // 1 = linear
   private double armNonlinearity = 2; // 1 = linear
   
+  private double steeringCounterDivisor = 45; // Lower = More Powerful
+  
   private int armMaxPos = 2150;
 
   private int armIntakePos;
@@ -46,7 +48,7 @@ public class MainOp extends MainOpBase {
   private double wristIntakePos = 0.435;
   
   private int armBackboardPos = 480;
-  private double wristBackboardPos = 0.75;
+  private double wristBackboardPos = 0.715;
 
   // Bot
   private BotState state;
@@ -270,7 +272,7 @@ public class MainOp extends MainOpBase {
               currentAngle = rawAngle;
             } else {
               if (rawAngle != currentAngle) {
-                turnPower += (rawAngle - currentAngle) / 35;
+                turnPower += (rawAngle - currentAngle) / steeringCounterDivisor;
               }
             }
           }
