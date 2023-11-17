@@ -94,8 +94,6 @@ public class MainOp extends MainOpBase {
 
   private DcMotor.ZeroPowerBehavior armZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
 
-  private int armVerticalPos = 1550;
-
   private int armTargetPos = 0;
 
   // Wrist
