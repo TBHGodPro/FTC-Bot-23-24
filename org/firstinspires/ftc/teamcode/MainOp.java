@@ -37,16 +37,16 @@ public class MainOp extends MainOpBase {
   // Dynamic Constants
   private double turningNonlinearity = 1.75; // 1 = linear
   private double armNonlinearity = 2; // 1 = linear
-  
+
   private double steeringCounterDivisor = 45; // Lower = More Powerful
-  
+
   private int armMaxPos = 2150;
 
   private int armIntakePos;
   private int armIntakePosManual = 170;
   private int armIntakePosAutonomous = 315;
   private double wristIntakePos = 0.435;
-  
+
   private int armBackboardPos = 480;
   private double wristBackboardPos = 0.715;
 
@@ -129,7 +129,7 @@ public class MainOp extends MainOpBase {
     if (gamepad == null) {
       gamepad = gamepad1;
     }
-    
+
     armIntakePos = isAutonomous ? armIntakePosAutonomous : armIntakePosManual;
 
     updateTelemetry();
@@ -298,7 +298,7 @@ public class MainOp extends MainOpBase {
         }
 
         // Arm Handling
-        
+
         // - Reset Intake Position
         if (gamepad.back) {
           armIntakePos = arm.getCurrentPosition();
@@ -372,7 +372,7 @@ public class MainOp extends MainOpBase {
             isHandClosed = false;
           }
         }
-        
+
         // Backboard Position
         if (gamepad.a) {
           setArmPosition(armBackboardPos);
