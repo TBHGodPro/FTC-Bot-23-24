@@ -10,11 +10,16 @@ import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
 public class ImageProcessor implements VisionProcessor {
+        // Options
+
+        public boolean shouldDisplayBinaryImage = true;
+        public boolean shouldFillBox = false;
+
         // Alliance
 
         public Alliance alliance;
@@ -77,15 +82,15 @@ public class ImageProcessor implements VisionProcessor {
 
                 switch (alliance) {
                         case RED: {
-                                lower = new Scalar(10, 5, 1);
+                                lower = new Scalar(0, 25, 25);
                                 upper = new Scalar(255, 255, 255);
 
                                 break;
                         }
 
                         case BLUE: {
-                                lower = new Scalar(75, 75, 100);
-                                upper = new Scalar(200, 200, 255);
+                                lower = new Scalar(100, 25, 25);
+                                upper = new Scalar(200, 255, 255);
 
                                 break;
                         }
@@ -105,7 +110,12 @@ public class ImageProcessor implements VisionProcessor {
 
                 Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV);
                 Core.inRange(hsvMat, lower, upper, binaryMat);
-                Core.inRange(hsvMat, lower, upper, input);
+
+                if (shouldDisplayBinaryImage) {
+                        Core.inRange(hsvMat, lower, upper, input);
+                } else {
+                        Imgproc.cvtColor(input, input, Imgproc.COLOR_RGB2HSV);
+                }
 
                 // Draw Region Boundaries
 
@@ -167,7 +177,7 @@ public class ImageProcessor implements VisionProcessor {
                                         region1_A,
                                         region1_B,
                                         REGION_FILL,
-                                        -1);
+                                        shouldFillBox ? -1 : 8);
                 } else if (found == avg2) {
                         position = PossiblePosition.CENTER;
 
@@ -176,7 +186,7 @@ public class ImageProcessor implements VisionProcessor {
                                         region2_A,
                                         region2_B,
                                         REGION_FILL,
-                                        -1);
+                                        shouldFillBox ? -1 : 8);
                 } else if (found == avg3) {
                         position = PossiblePosition.RIGHT;
 
@@ -185,7 +195,7 @@ public class ImageProcessor implements VisionProcessor {
                                         region3_A,
                                         region3_B,
                                         REGION_FILL,
-                                        -1);
+                                        shouldFillBox ? -1 : 8);
                 }
 
                 return null;
