@@ -1,6 +1,7 @@
 {
   "scripts": {
     "start": "NODE_PATH=$(npm root --quiet -g) node Updater.js",
-    "build": "NODE_PATH=$(npm root --quiet -g) node Build.js"
+    "build": "NODE_PATH=$(npm root --quiet -g) node Build.js",
+    "upload": "NODE_PATH=$(npm root --quiet -g) node Upload.js"
   }
 }
