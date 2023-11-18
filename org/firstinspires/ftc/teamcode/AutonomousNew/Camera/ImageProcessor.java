@@ -17,7 +17,7 @@ import org.opencv.imgproc.Imgproc;
 public class ImageProcessor implements VisionProcessor {
         // Options
 
-        public boolean shouldDisplayBinaryImage = false;
+        public boolean shouldDisplayBinaryImage = true;
         public boolean shouldFillBox = false;
 
         // Alliance
@@ -82,14 +82,14 @@ public class ImageProcessor implements VisionProcessor {
 
                 switch (alliance) {
                         case RED: {
-                                lower = new Scalar(12, 5, 1);
-                                upper = new Scalar(168, 255, 255);
+                                lower = new Scalar(0, 0, 0);
+                                upper = new Scalar(165, 255, 255);
 
                                 break;
                         }
 
                         case BLUE: {
-                                lower = new Scalar(100, 25, 25);
+                                lower = new Scalar(100, 60, 60);
                                 upper = new Scalar(140, 255, 255);
 
                                 break;

@@ -38,7 +38,7 @@ public class MainOp extends MainOpBase {
   private double turningNonlinearity = 1.75; // 1 = linear
   private double armNonlinearity = 2; // 1 = linear
 
-  private double steeringCounterDivisor = 45; // Lower = More Powerful
+  private double steeringCounterDivisor = 32; // Lower = More Powerful
 
   private int armIntakePos;
   private int armIntakePosManual = 170;
@@ -270,7 +270,11 @@ public class MainOp extends MainOpBase {
               currentAngle = rawAngle;
             } else {
               if (rawAngle != currentAngle) {
-                turnPower += (rawAngle - currentAngle) / steeringCounterDivisor;
+                if (rawAngle > currentAngle) {
+                  turnPower += (((rawAngle - currentAngle) + 180) % 360 - 180) / steeringCounterDivisor;
+                } else {
+                  turnPower -= (((currentAngle - rawAngle) + 180) % 360 - 180) / steeringCounterDivisor;
+                }
               }
             }
           }
