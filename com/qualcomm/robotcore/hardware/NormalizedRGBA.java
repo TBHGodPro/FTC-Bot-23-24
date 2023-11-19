@@ -42,7 +42,7 @@ import com.qualcomm.robotcore.util.Range;
  * @see NormalizedColorSensor
  */
 public class NormalizedRGBA
-    {
+{
     /** normalized red value, in range [0,1) */
     public float red;
 
@@ -58,12 +58,12 @@ public class NormalizedRGBA
     /** Converts the normalized colors into an Android color integer
      * @see Color */
     public @ColorInt int toColor()
-        {
+    {
         float scale = 256; int min = 0, max = 255;
         return Color.argb(
                 Range.clip((int)(alpha * scale), min, max),
                 Range.clip((int)(red   * scale), min, max),
                 Range.clip((int)(green * scale), min, max),
                 Range.clip((int)(blue  * scale), min, max));
-        }
     }
+}

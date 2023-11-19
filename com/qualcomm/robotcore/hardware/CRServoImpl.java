@@ -1,147 +1,75 @@
 package com.qualcomm.robotcore.hardware;
 
-import com.qualcomm.robotcore.R;
-import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-
 /**
- * ContinuousRotationServoImpl provides an implementation of continuous
- * rotation servo functionality.
+ * Implementation of the CRServo interface.
  */
-public class CRServoImpl implements CRServo
-    {
-    //----------------------------------------------------------------------------------------------
-    // State
-    //----------------------------------------------------------------------------------------------
+public class CRServoImpl implements CRServo {
 
-    protected ServoController controller    = null;
-    protected int             portNumber    = -1;
-    protected Direction       direction     = Direction.FORWARD;
-
-    protected static final double apiPowerMin = -1.0;
-    protected static final double apiPowerMax =  1.0;
-    protected static final double apiServoPositionMin = 0.0;
-    protected static final double apiServoPositionMax = 1.0;
-
-    //------------------------------------------------------------------------------------------------
-    // Construction
-    //------------------------------------------------------------------------------------------------
+    private DcMotorSimple.Direction direction = Direction.FORWARD;
+    private double power = 0.0;
+    private double positionDegrees = 0.0;
+    public final double MAX_DEGREES_PER_SECOND;
 
     /**
-     * Constructor
-     *
-     * @param controller Servo controller that this servo is attached to
-     * @param portNumber physical port number on the servo controller
+     * For internal use only
      */
-    public CRServoImpl(ServoController controller, int portNumber)
-        {
-        this(controller, portNumber, Direction.FORWARD);
-        }
-
-    /**
-     * Constructor
-     *
-     * @param controller Servo controller that this servo is attached to
-     * @param portNumber physical port number on the servo controller
-     * @param direction  FORWARD for normal operation, REVERSE to reverse operation
-     */
-    public CRServoImpl(ServoController controller, int portNumber, Direction direction)
-        {
-        this.direction = direction;
-        this.controller = controller;
-        this.portNumber = portNumber;
-        }
-
-    //----------------------------------------------------------------------------------------------
-    // HardwareDevice interface
-    //----------------------------------------------------------------------------------------------
-
-    @Override
-    public Manufacturer getManufacturer()
-        {
-        return controller.getManufacturer();
-        }
-
-    @Override
-    public String getDeviceName()
-        {
-        return AppUtil.getDefContext().getString(R.string.configTypeContinuousRotationServo);
-        }
-
-    @Override
-    public String getConnectionInfo()
-        {
-        return controller.getConnectionInfo() + "; port " + portNumber;
-        }
-
-    @Override
-    public int getVersion()
-        {
-        return 1;
-        }
-
-    @Override
-    public synchronized void resetDeviceConfigurationForOpMode()
-        {
-        this.direction = Direction.FORWARD;
-        }
-
-    @Override
-    public void close()
-        {
-        // take no action
-        }
-
-    //----------------------------------------------------------------------------------------------
-    // ContinuousRotationServo interface
-    //----------------------------------------------------------------------------------------------
-
-    @Override
-    public ServoController getController()
-        {
-        return this.controller;
-        }
-
-    @Override
-    public int getPortNumber()
-        {
-        return this.portNumber;
-        }
-
-    @Override
-    public synchronized void setDirection(Direction direction)
-        {
-        this.direction = direction;
-        }
-
-    @Override
-    public synchronized Direction getDirection()
-        {
-        return this.direction;
-        }
-
-    @Override
-    public void setPower(double power)
-        {
-        // For CR Servos on MR/HiTechnic hardware, internal positions relate to speed as follows:
-        //
-        //      0   == full speed reverse
-        //      128 == stopped
-        //      255 == full speed forward
-        //
-        if (this.direction == Direction.REVERSE) power = -power;
-        power = Range.clip(power, apiPowerMin, apiPowerMax);
-        power = Range.scale(power, apiPowerMin, apiPowerMax, apiServoPositionMin, apiServoPositionMax);
-        this.controller.setServoPosition(this.portNumber, power);
-        }
-
-    @Override
-    public double getPower()
-        {
-        double power = this.controller.getServoPosition(this.portNumber);
-        power = Range.scale(power, apiServoPositionMin, apiServoPositionMax, apiPowerMin, apiPowerMax);
-        if (this.direction == Direction.REVERSE) power = -power;
-        return power;
-        }
+    public CRServoImpl(double maxDegreesPerSecond){
+        this.MAX_DEGREES_PER_SECOND = maxDegreesPerSecond;
     }
+
+    /**
+     * Set the logical direction of the CRServo
+     * @param direction the direction to set for this motor
+     */
+    @Override
+    public synchronized void setDirection(DcMotorSimple.Direction direction){
+        this.direction = direction;
+    }
+
+    /**
+     * Get the logical direction of the CRServo
+     * @return
+     */
+    @Override
+    public synchronized DcMotorSimple.Direction getDirection(){ return this.direction; }
+
+    /**
+     * Set power
+     * @param power the new power level of the motor, a value in the interval [-1.0, 1.0]
+     */
+    @Override
+    public synchronized void setPower(double power){
+        if (power < -1.0) this.power = -1.0;
+        else if (power > 1.0) this.power = 1.0;
+        else this.power = power;
+    }
+
+    /**
+     * Get power
+     * @return
+     */
+    @Override
+    public synchronized double getPower(){ return this.power; }
+
+    /**
+     * For internal use only.
+     * @param millis
+     * @return
+     */
+    public synchronized double updatePositionDegrees(double millis){
+        double deltaPos = power * MAX_DEGREES_PER_SECOND * millis / 1000.0;
+        positionDegrees += deltaPos;
+        return deltaPos;
+    }
+
+
+    /**
+     * For internal use only.
+     * @return
+     */
+    public synchronized double getPositionDegrees(){
+        return positionDegrees;
+    }
+
+
+}

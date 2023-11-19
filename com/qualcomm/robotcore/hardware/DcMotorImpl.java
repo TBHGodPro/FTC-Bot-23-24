@@ -1,333 +1,341 @@
-/* Copyright (c) 2014, 2015 Qualcomm Technologies Inc
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted (subject to the limitations in the disclaimer below) provided that
-the following conditions are met:
-
-Redistributions of source code must retain the above copyright notice, this list
-of conditions and the following disclaimer.
-
-Redistributions in binary form must reproduce the above copyright notice, this
-list of conditions and the following disclaimer in the documentation and/or
-other materials provided with the distribution.
-
-Neither the name of Qualcomm Technologies Inc nor the names of its contributors
-may be used to endorse or promote products derived from this software without
-specific prior written permission.
-
-NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
-LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
-
 package com.qualcomm.robotcore.hardware;
 
-import androidx.annotation.NonNull;
-
-import com.qualcomm.robotcore.R;
+import com.qualcomm.robotcore.hardware.configuration.MotorType;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
-import com.qualcomm.robotcore.util.RobotLog;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Rotation;
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import java.util.Random;
 
 /**
- * Control a DC Motor attached to a DC Motor Controller
- *
- * @see com.qualcomm.robotcore.hardware.DcMotorController
+ * Implementation of the DcMotor interface.
  */
-@SuppressWarnings("unused,WeakerAccess")
 public class DcMotorImpl implements DcMotor {
+    public final MotorType MOTOR_TYPE;
+    public final MotorConfigurationType MOTOR_CONFIGURATION_TYPE;
 
-  //------------------------------------------------------------------------------------------------
-  // State
-  //------------------------------------------------------------------------------------------------
+    //Proportionate coefficient for RUN_TO_POSITION mode
+    protected final double COEFF_PROPORTIONATE = 5.0;
 
-  protected DcMotorController            controller = null;
-  protected int                          portNumber = -1;
-  protected Direction                    direction  = Direction.FORWARD;
-  protected MotorConfigurationType       motorType  = null;
+    // Rotation offset (in rotations) for isBusy
+    protected final double MAX_ROT_OFFSET = 0.005;
 
-  //------------------------------------------------------------------------------------------------
-  // Construction
-  //------------------------------------------------------------------------------------------------
+    //Target position for RUN_TO_POSITION mode
+    private int targetPosition = 0;
+    private boolean targetPositionIsSet = false;
 
-  /**
-   * Constructor
-   *
-   * @param controller DC motor controller this motor is attached to
-   * @param portNumber portNumber position on the controller
-   */
-  public DcMotorImpl(DcMotorController controller, int portNumber) {
-    this(controller, portNumber, Direction.FORWARD);
-  }
+    private final Random random = new Random();
+    private RunMode mode = RunMode.RUN_WITHOUT_ENCODER;
+    private Direction direction = Direction.FORWARD;
 
-  /**
-   * Constructor
-   *
-   * @param controller DC motor controller this motor is attached to
-   * @param portNumber portNumber port number on the controller
-   * @param direction direction this motor should spin
-   */
-  public DcMotorImpl(DcMotorController controller, int portNumber, Direction direction) {
-    this(controller, portNumber, direction, MotorConfigurationType.getUnspecifiedMotorType());
-  }
+    //power is the requested speed, normalized to the -1 to +1 range
+    private double power = 0.0;
 
-  /**
-   * Constructor
-   *
-   * @param controller DC motor controller this motor is attached to
-   * @param portNumber portNumber port number on the controller
-   * @param direction direction this motor should spin
-   * @param motorType the type we know this motor to be
-   */
-  public DcMotorImpl(DcMotorController controller, int portNumber, Direction direction, @NonNull MotorConfigurationType motorType) {
-    this.controller = controller;
-    this.portNumber = portNumber;
-    this.direction = direction;
-    this.motorType = motorType;
-    RobotLog.v("DcMotorImpl(type=%s)", motorType.getXmlTag());
+    /*
+     * actualSpeed is current motor "actual speed", normalized to the -1 to +1 range. This refers
+     * to the rate at which the output shaft is rotating in the CLOCKWISE direction (when viewed from
+     * the shaft end). This will be equal in magnitude to speed, but may differ in sign, depending
+     * upon the values of direction and MOTOR_TYPE.reversed.
+     */
+    private double actualSpeed = 0.0;
 
-    // Clone the initial assigned motor type. This disconnects any subsequent modifications in the
-    // fields of the type from the type used here at construction, which is usually / often the master
-    // SDK instance for a given type, which ought not to be messed with.
-    controller.setMotorType(portNumber, motorType.clone());
-  }
+    //actual position of motor
+    private double actualPosition = 0.0;
 
-  //------------------------------------------------------------------------------------------------
-  // HardwareDevice interface
-  //------------------------------------------------------------------------------------------------
+    //position to use as baseline for encoder tick calculation
+    private double encoderBasePosition = 0.0;
 
-  @Override public Manufacturer getManufacturer() {
-    return controller.getManufacturer();
-  }
+    private boolean supportsError = true;
+    private boolean supportsInertia = true;
+    private double randomErrorFrac = 0.0;
+    private double systematicErrorFrac = 0.0;
+    private double inertia;
 
-  @Override
-  public String getDeviceName() {
-    return AppUtil.getDefContext().getString(R.string.configTypeMotor);
-  }
+    private ZeroPowerBehavior zeroPowerBehavior = ZeroPowerBehavior.BRAKE;
 
-  @Override
-  public String getConnectionInfo() {
-    return controller.getConnectionInfo() + "; port " + portNumber;
-  }
-
-  @Override
-  public int getVersion() {
-    return 1;
-  }
-
-  @Override
-  public void resetDeviceConfigurationForOpMode() {
-    this.setDirection(Direction.FORWARD);
-    this.controller.resetDeviceConfigurationForOpMode(portNumber);
-  }
-
-  @Override
-  public void close() {
-    setPowerFloat();
-  }
-
-  //------------------------------------------------------------------------------------------------
-  // DcMotor interface
-  //------------------------------------------------------------------------------------------------
-
-  @Override public MotorConfigurationType getMotorType() {
-    return controller.getMotorType(portNumber);
-  }
-
-  @Override public void setMotorType(MotorConfigurationType motorType) {
-    controller.setMotorType(portNumber, motorType);
-  }
-
-/**
-   * Get DC motor controller
-   *
-   * @return controller
-   */
-  public DcMotorController getController() {
-    return controller;
-  }
+    // Physical limits on output shaft travel
+    private double upperActualPositionLimit = 0;
+    private double lowerActualPositionLimit = 0;
+    private boolean upperPositionLimitEnabled = false;
+    private boolean lowerPositionLimitEnabled = false;
 
 
-  /**
-   * Set the direction
-   * @param direction direction
-   */
-  synchronized public void setDirection(Direction direction) {
-    this.direction = direction;
-  }
-
-  /**
-   * Get the direction
-   * @return direction
-   */
-  public Direction getDirection() {
-    return direction;
-  }
-
-  /**
-   * Get port number
-   *
-   * @return portNumber
-   */
-  public int getPortNumber() {
-    return portNumber;
-  }
-
-  /**
-   * Set the current motor power
-   *
-   * @param power from -1.0 to 1.0
-   */
-  synchronized public void setPower(double power) {
-    // Power must be positive when in RUN_TO_POSITION mode : in that mode, the
-    // *direction* of rotation is controlled instead by the relative positioning
-    // of the current and target positions.
-    if (getMode() == RunMode.RUN_TO_POSITION) {
-        power = Math.abs(power);
-    } else {
-        power = adjustPower(power);
+    /**
+     * For internal use only.
+     * @param motorType
+     */
+    public DcMotorImpl(MotorType motorType){
+        MOTOR_TYPE = motorType;
+        MOTOR_CONFIGURATION_TYPE = new MotorConfigurationType(motorType);
     }
-    internalSetPower(power);
-  }
 
-  protected void internalSetPower(double power) {
-    controller.setMotorPower(portNumber, power);
-  }
-
- /**
-   * Get the current motor power
-   *
-   * @return scaled from -1.0 to 1.0
-   */
-  synchronized public double getPower() {
-    double power = controller.getMotorPower(portNumber);
-    if (getMode() == RunMode.RUN_TO_POSITION) {
-        power = Math.abs(power);
-    } else {
-        power = adjustPower(power);
+    /**
+     * For internal use only
+     * @param motorType
+     * @param supportsError  True, if motor is to be affected by random and systematic error.
+     * @param supportsInertia   True, if motor is to be affected by inertia.
+     */
+    public DcMotorImpl(MotorType motorType, boolean supportsError, boolean supportsInertia){
+        MOTOR_TYPE = motorType;
+        MOTOR_CONFIGURATION_TYPE = new MotorConfigurationType(motorType);
+        this.supportsInertia = supportsInertia;
+        this.supportsError = supportsError;
     }
-    return power;
-  }
 
-  /**
-   * Is the motor busy?
-   *
-   * @return true if the motor is busy
-   */
-  public boolean isBusy() {
-    return controller.isBusy(portNumber);
-  }
+    /**
+     * Set mode of operation
+     * @param mode
+     */
+    public synchronized void setMode(RunMode mode){
+        this.mode = mode;
+        power = 0.0;
+        if (mode == RunMode.STOP_AND_RESET_ENCODER){
+            encoderBasePosition = actualPosition;
+        } else if (mode == RunMode.RUN_TO_POSITION){
+            if (!targetPositionIsSet) {
+                throw new ActionNotSupportedException("Target position must be set before entering RUN_TO_POSITION mode.");
+            }
+        }
+    }
 
-  @Override
-  public synchronized void setZeroPowerBehavior(ZeroPowerBehavior zeroPowerBehavior) {
-    controller.setMotorZeroPowerBehavior(portNumber, zeroPowerBehavior);
-  }
+    /**
+     * Get mode of operation
+     * @return mode
+     */
+    public synchronized RunMode getMode(){ return mode; }
 
-  @Override
-  public synchronized ZeroPowerBehavior getZeroPowerBehavior() {
-    return controller.getMotorZeroPowerBehavior(portNumber);
-  }
+    /**
+     * Set logical direction
+     * @param direction the direction to set for this motor
+     */
+    public synchronized void setDirection(Direction direction){ this.direction = direction; }
 
-  /**
-   * Allow motor to float
-   */
-  @Deprecated
-  public synchronized void setPowerFloat() {
-    setZeroPowerBehavior(ZeroPowerBehavior.FLOAT);
-    setPower(0.0);
-  }
+    /**
+     * Get logical direction
+     * @return direction
+     */
+    public synchronized Direction getDirection(){ return direction; }
 
-  /**
-   * Is motor power set to float?
-   *
-   * @return true of motor is set to float
-   */
-  public synchronized boolean getPowerFloat() {
-    return getZeroPowerBehavior() == ZeroPowerBehavior.FLOAT && getPower() == 0.0;
-  }
+    /**
+     * Get requested power
+     * @return
+     */
+    public synchronized double getPower(){ return power; }
 
-  /**
-   * Set the motor target position, using an integer. If this motor has been set to REVERSE,
-   * the passed-in "position" value will be multiplied by -1.
-   *
-   *  @param position range from Integer.MIN_VALUE to Integer.MAX_VALUE
-   *
-   */
-  synchronized public void setTargetPosition(int position) {
-    position = adjustPosition(position);
-    internalSetTargetPosition(position);
-  }
+    /**
+     * Set requested power
+     * @param power the new power level of the motor, a value in the interval [-1.0, 1.0]
+     */
+    public synchronized void setPower(double power){
+        this.power = Math.max(-1, Math.min(1, power));
+    }
 
-  protected void internalSetTargetPosition(int position) {
-    controller.setMotorTargetPosition(portNumber, position);
-  }
+    /**
+     * Get current position (as number of encoder ticks)
+     * @return number of encoder ticks
+     */
+    public synchronized int getCurrentPosition(){
+        int result = (int)Math.floor(actualPosition - encoderBasePosition);
+        return direction == Direction.FORWARD && MOTOR_TYPE.REVERSED ||
+                direction == Direction.REVERSE && !MOTOR_TYPE.REVERSED ? -result : result;
+    }
 
-  /**
-   * Get the current motor target position. If this motor has been set to REVERSE, the returned
-   * "position" will be multiplied by -1.
-   *
-   * @return integer, unscaled
-   */
-  synchronized public int getTargetPosition() {
-    int position = controller.getMotorTargetPosition(portNumber);
-    return adjustPosition(position);
-  }
+    /**
+     * For internal use only.
+     * @return
+     */
+    public synchronized double getActualPosition(){ return actualPosition; }
 
-  /**
-   * Get the current encoder value, accommodating the configured directionality of the motor.
-   *
-   * @return double indicating current position
-   */
-  synchronized public int getCurrentPosition() {
-    int position = controller.getMotorCurrentPosition(portNumber);
-    return adjustPosition(position);
-  }
+    /**
+     * For internal use only.
+     * Updates motor speed based on current speed, power, and inertia. Then, uses average motor speed to update position.
+     * @param milliseconds number of milliseconds since last update
+     * @return change in actualPosition
+     */
+//    public synchronized double oldUpdate(double milliseconds){
+//        double speedChange, avgSpeed;
+//        if (mode == RunMode.STOP_AND_RESET_ENCODER) return 0.0;
+//        else if (mode == RunMode.RUN_TO_POSITION){
+//            double targetSpeed = COEFF_PROPORTIONATE * (double)(targetPosition - getCurrentPosition())
+//                    / MOTOR_TYPE.MAX_TICKS_PER_SECOND;
+//            double absPower = Math.abs(power);
+//            targetSpeed = Math.max(-absPower, Math.min(targetSpeed, absPower));
+//            speedChange = (1.0 - inertia) * (targetSpeed - speed);
+//            avgSpeed = speed + speedChange / 2.0;
+//            speed = speed + speedChange;
+//        } else {
+//            speedChange = (1.0 - inertia) * (power - speed);
+//            avgSpeed = speed + speedChange / 2.0;
+//            speed = speed + speedChange;
+//        }
+//        double positionChange = avgSpeed * MOTOR_TYPE.MAX_TICKS_PER_SECOND * milliseconds / 1000.0;
+//        positionChange *= (1.0 + systematicErrorFrac + randomErrorFrac * random.nextGaussian());
+//        if (direction == Direction.FORWARD && MOTOR_TYPE.REVERSED ||
+//                direction == Direction.REVERSE && !MOTOR_TYPE.REVERSED) {
+//            positionChange = -positionChange;
+//            actualSpeed = -speed;
+//        } else {
+//            actualSpeed = speed;
+//        }
+//        actualPosition += positionChange;
+//        return positionChange;
+//    }
 
-  protected int adjustPosition(int position) {
-    if (getOperationalDirection() == Direction.REVERSE) position = -position;
-    return position;
-  }
+    /*
+     * For internal use only.
+     * New version of the update method that is compatible with position limits.
+     * Updates motor speed based on current speed, power, and inertia. Then, uses average motor speed to update position.
+     * @param milliseconds number of milliseconds since last update
+     * @return change in actualPosition
+     */
+    public synchronized double update(double milliseconds){
+        if (mode == RunMode.STOP_AND_RESET_ENCODER) return 0.0;
 
-  protected double adjustPower(double power) {
-    if (getOperationalDirection() == Direction.REVERSE) power = -power;
-    return power;
-  }
+        double actualSpeedChange, avgActualSpeed, tentativeActualSpeed;
+        boolean rev = direction == Direction.FORWARD && MOTOR_TYPE.REVERSED
+                || direction == Direction.REVERSE && !MOTOR_TYPE.REVERSED;
+        if (mode == RunMode.RUN_TO_POSITION){
+            double actualTargetPosition = rev? -targetPosition : targetPosition;
+            double actualTargetSpeed = COEFF_PROPORTIONATE
+                    * (double)(actualTargetPosition - (actualPosition - encoderBasePosition))
+                    / MOTOR_TYPE.MAX_TICKS_PER_SECOND;
+            double absPower = Math.abs(power);
+            actualTargetSpeed = Math.max(-absPower, Math.min(actualTargetSpeed, absPower));
+            actualSpeedChange = (1.0 - inertia) * (actualTargetSpeed - actualSpeed);
+            avgActualSpeed = actualSpeed + actualSpeedChange / 2.0;
+            tentativeActualSpeed = actualSpeed + actualSpeedChange;
+        } else {
+            double actualPower = rev? -power : power;
+            actualSpeedChange = (1.0 - inertia) * (actualPower - actualSpeed);
+            avgActualSpeed = actualSpeed + actualSpeedChange / 2.0;
+            tentativeActualSpeed = actualSpeed + actualSpeedChange;
+        }
 
-  protected Direction getOperationalDirection() {
-    return motorType.getOrientation() == Rotation.CCW ? direction.inverted() : direction;
-  }
+        double tentativeActualPositionChange = avgActualSpeed * MOTOR_TYPE.MAX_TICKS_PER_SECOND * milliseconds / 1000.0;
+        tentativeActualPositionChange *= (1.0 + systematicErrorFrac + randomErrorFrac * random.nextGaussian());
+        double tentativeActualPosition = actualPosition + tentativeActualPositionChange;
 
-  /**
-   * Set the current mode
-   *
-   * @param mode run mode
-   */
-  synchronized public void setMode(RunMode mode) {
-    mode = mode.migrate();
-    internalSetMode(mode);
-  }
+        if (upperPositionLimitEnabled && tentativeActualPosition > upperActualPositionLimit){
+            tentativeActualPosition = upperActualPositionLimit;
+            tentativeActualSpeed = Math.min(0, tentativeActualSpeed);
+        } else if (lowerPositionLimitEnabled && tentativeActualPosition < lowerActualPositionLimit){
+            tentativeActualPosition = lowerActualPositionLimit;
+            tentativeActualSpeed = Math.max(0, tentativeActualSpeed);
+        }
 
-  protected void internalSetMode(RunMode mode) {
-    controller.setMotorMode(portNumber, mode);
-  }
+        actualSpeed = tentativeActualSpeed;
+        double positionChange = tentativeActualPosition - actualPosition;
+        actualPosition = tentativeActualPosition;
 
-  /**
-   * Get the current mode
-   *
-   * @return run mode
-   */
-  public RunMode getMode() {
-    return controller.getMotorMode(portNumber);
-  }
+        return positionChange;
+    }
+
+    /**
+     * For internal use only -- The FTC SDK does not include a "getSpeed()" method in the DcMotorImpl class.
+     * Related: see getVelocity methods of DcMotorEx
+     * @return current motor speed, normalized -1 to 1
+     */
+    protected synchronized double getSpeed(){
+        boolean rev = direction == Direction.FORWARD && MOTOR_TYPE.REVERSED
+                || direction == Direction.REVERSE && !MOTOR_TYPE.REVERSED;
+        return rev? -actualSpeed : actualSpeed;
+    }
+
+    /**
+     * For internal use only -- the FTC SDK does not include a "getActualSpeed()" method in the DcMotorImpl class.
+     * @return current motor actual speed, normalized -1 to 1.
+     */
+    protected synchronized double getActualSpeed() { return actualSpeed; }
+
+    /**
+     * For internal use only.
+     * @param rdmErrFrac
+     */
+    public synchronized void setRandomErrorFrac(double rdmErrFrac){
+        if (!supportsError) return;
+        randomErrorFrac = rdmErrFrac;
+    }
+
+    /**
+     * For internal use only.
+     * @param sysErrFrac
+     */
+    public synchronized void setSystematicErrorFrac(double sysErrFrac) {
+        if (!supportsError) return;
+        systematicErrorFrac = sysErrFrac; }
+
+    /**
+     * For internal use only.
+     * @param in
+     */
+    public synchronized void setInertia(double in){
+        if (!supportsInertia) return;
+        if (in < 0) inertia = 0.0;
+        else if (in > 0.99) inertia = 0.99;
+        else inertia = in;
+    }
+
+    //For internal use only: for stopping and resetting motor between op mode runs
+    public synchronized void stopAndReset(){
+        power = 0.0;
+        actualSpeed = 0.0;
+        direction = Direction.FORWARD;
+        mode = RunMode.RUN_WITHOUT_ENCODER;
+        targetPositionIsSet = false;
+    }
+
+    //Set target position for RUN_TO_POSITION mode
+    public synchronized void setTargetPosition(int pos){
+        targetPosition = pos;
+        targetPositionIsSet = true;
+    }
+
+    //Get target position
+    public synchronized  int getTargetPosition(){
+        return targetPosition;
+    }
+
+    /**
+     * Indicates whether approaching target in RUN_TO_POSITION mode
+     * Result will become false when: ticks are nearly at the target AND speed is very slow
+     */
+    public synchronized boolean isBusy(){
+        int pos = getCurrentPosition();
+        boolean atTarget = Math.abs(pos-targetPosition)/MOTOR_TYPE.TICKS_PER_ROTATION < MAX_ROT_OFFSET;
+        boolean almostStopped = Math.abs(actualSpeed) / (COEFF_PROPORTIONATE * MOTOR_TYPE.TICKS_PER_ROTATION) < MAX_ROT_OFFSET;
+        return mode == RunMode.RUN_TO_POSITION && Math.abs(power) > 0.0001 && (!atTarget || !almostStopped);
+    }
+
+    public synchronized void setZeroPowerBehavior(ZeroPowerBehavior beh) { zeroPowerBehavior = beh; }
+
+    public synchronized ZeroPowerBehavior getZeroPowerBehavior() { return zeroPowerBehavior; }
+
+    public MotorConfigurationType getMotorType(){
+        return MOTOR_CONFIGURATION_TYPE;
+    }
+
+    public synchronized void setUpperPositionLimitEnabled(boolean upperLimitEnabled){
+        this.upperPositionLimitEnabled = upperLimitEnabled;
+    }
+
+    public synchronized void setLowerPositionLimitEnabled(boolean lowerLimitEnabled){
+        this.lowerPositionLimitEnabled = lowerLimitEnabled;
+    }
+
+    public synchronized void setUpperActualPositionLimit(double upperPositionLimit){
+        this.upperActualPositionLimit = upperPositionLimit;
+    }
+
+    public synchronized void setLowerActualPositionLimit(double lowerPositionLimit){
+        this.lowerActualPositionLimit = lowerPositionLimit;
+    }
+
+    public synchronized void setPositionLimitsEnabled(boolean limitsEnabled){
+        this.upperPositionLimitEnabled = limitsEnabled;
+        this.lowerPositionLimitEnabled = limitsEnabled;
+    }
+
+    public synchronized void setActualPositionLimits(double lowerPositionLimit, double upperPositionLimit){
+        this.upperActualPositionLimit = upperPositionLimit;
+        this.lowerActualPositionLimit = lowerPositionLimit;
+    }
+
 }

@@ -30,9 +30,11 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.robotcore.external.matrices;
 
-import android.annotation.SuppressLint;
+/*
+Modified by FTC Team Beta 8397 for use in the Virtual Robot simulator.
+ */
+package org.firstinspires.ftc.robotcore.external.matrices;
 
 import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.NonConst;
@@ -311,7 +313,7 @@ public class VectorF
         return dimensionsError(this.length());
         }
 
-    @SuppressLint("DefaultLocale") protected static RuntimeException dimensionsError(int length)
+    protected static RuntimeException dimensionsError(int length)
         {
         return new IllegalArgumentException(String.format("vector dimensions are incorrect: length=%d", length));
         }

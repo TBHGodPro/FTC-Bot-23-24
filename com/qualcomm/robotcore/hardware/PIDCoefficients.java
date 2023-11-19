@@ -30,34 +30,36 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package com.qualcomm.robotcore.hardware;
 
-import org.firstinspires.ftc.robotcore.internal.system.Misc;
+/*
+Modified by FTC Team Beta for use in the Virtual Robot Simulator
+ */
+package com.qualcomm.robotcore.hardware;
 
 /**
  * {@link PIDCoefficients} conveys a set of configuration parameters for a PID algorithm.
  * @see <a href="https://en.wikipedia.org/wiki/PID_controller">PID controller</a>
  */
 public class PIDCoefficients
-    {
+{
     public double p;
     public double i;
     public double d;
 
     @Override public String toString()
-        {
-        return Misc.formatForUser("%s(p=%f i=%f d=%f)", getClass().getSimpleName(), p, i, d);
-        }
+    {
+        return String.format("%s(p=%f i=%f d=%f)", getClass().getSimpleName(), p, i, d);
+    }
 
     public PIDCoefficients()
-        {
+    {
         this.p = this.i = this.d = 0;
-        }
+    }
 
     public PIDCoefficients(double p, double i, double d)
-        {
+    {
         this.p = p;
         this.i = i;
         this.d = d;
-        }
     }
+}

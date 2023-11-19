@@ -30,13 +30,18 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+/*
+Modified by FTC Team Beta 8397 for use in the Virtual_Robot Simulator
+ */
+
 package com.qualcomm.robotcore.hardware;
 
 /**
- * Instances of DcMotorSimple interface provide a most basic motor-like functionality
+ * Represents a simple DC Motor
  */
-public interface DcMotorSimple extends HardwareDevice
-    {
+public interface DcMotorSimple extends HardwareDevice {
+
     /**
      * DcMotors can be configured to internally reverse the values
      * to which, e.g., their motor power is set. This makes it easy
@@ -44,9 +49,6 @@ public interface DcMotorSimple extends HardwareDevice
      * one would be set at at forward, the other at reverse, and the
      * difference between the two in that respect could be thereafter ignored.
      *
-     * <p>At the start of an OpMode, motors are guaranteed to be in the forward direction.</p>
-     *
-     * @see #setDirection(Direction)
      */
     enum Direction { FORWARD, REVERSE;
         public Direction inverted() {
@@ -58,14 +60,12 @@ public interface DcMotorSimple extends HardwareDevice
      * Sets the logical direction in which this motor operates.
      * @param direction the direction to set for this motor
      *
-     * @see #getDirection()
      */
     void setDirection(Direction direction);
 
     /**
      * Returns the current logical direction in which this motor is set as operating.
      * @return the current logical direction in which this motor is set as operating.
-     * @see #setDirection(Direction)
      */
     Direction getDirection();
 
@@ -77,16 +77,12 @@ public interface DcMotorSimple extends HardwareDevice
      * <p>Setting a power level of zero will brake the motor</p>
      *
      * @param power the new power level of the motor, a value in the interval [-1.0, 1.0]
-     * @see #getPower()
-     * @see DcMotor#setMode(DcMotor.RunMode)
-     * @see DcMotor#setPowerFloat()
      */
     void setPower(double power);
 
     /**
      * Returns the current configured power level of the motor.
      * @return the current level of the motor, a value in the interval [0.0, 1.0]
-     * @see #setPower(double)
      */
     double getPower();
-    }
+}

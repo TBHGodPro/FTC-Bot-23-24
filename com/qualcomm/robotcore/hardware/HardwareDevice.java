@@ -29,55 +29,67 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
+/*
+Modified by FTC Team Beta 8397 for use in the Virtual_Robot Simulator
+ */
+
 package com.qualcomm.robotcore.hardware;
 
 /**
- * Interface used by Hardware Devices
+ * Interface to represent any hardware device that can be managed by HardwareMap.
  */
 public interface HardwareDevice {
 
-  enum Manufacturer {
-    Unknown, Other, Lego, HiTechnic, ModernRobotics, Adafruit, Matrix, Lynx, AMS, STMicroelectronics, Broadcom
-  }
+    enum Manufacturer {
+        Unknown, Other, Lego, HiTechnic, ModernRobotics, Adafruit, Matrix, Lynx, AMS, STMicroelectronics, Broadcom
+    }
 
-  /**
-   * Returns an indication of the manufacturer of this device.
-   * @return the device's manufacturer
-   */
-  Manufacturer getManufacturer();
+    /**
+     * Returns an indication of the manufacturer of this device.
+     * @return the device's manufacturer
+     */
+    default Manufacturer getManufacturer(){
+        return Manufacturer.Unknown;
+    }
 
-  /**
-   * Returns a string suitable for display to the user as to the type of device.
-   * Note that this is a device-type-specific name; it has nothing to do with the
-   * name by which a user might have configured the device in a robot configuration.
-   *
-   * @return device manufacturer and name
-   */
-  String getDeviceName();
+    /**
+     * Returns a string suitable for display to the user as to the type of device.
+     * Note that this is a device-type-specific name; it has nothing to do with the
+     * name by which a user might have configured the device in a robot configuration.
+     *
+     * @return device manufacturer and name
+     */
+    default String getDeviceName(){
+        return this.getClass().getSimpleName();
+    }
 
-  /**
-   * Get connection information about this device in a human readable format
-   *
-   * @return connection info
-   */
-  String getConnectionInfo();
+    /**
+     * Get connection information about this device in a human readable format
+     *
+     * @return connection info
+     */
+    default String getConnectionInfo(){
+        return "No Connection Info";
+    }
 
-  /**
-   * Version
-   *
-   * @return get the version of this device
-   */
-  int getVersion();
+    /**
+     * Version
+     *
+     * @return get the version of this device
+     */
+    default int getVersion() {
+        return 1;
+    }
 
-  /**
-   * Resets the device's configuration to that which is expected at the beginning of an OpMode.
-   * For example, motors will reset the their direction to 'forward'.
-   */
-  void resetDeviceConfigurationForOpMode();
+    /**
+     * Resets the device's configuration to that which is expected at the beginning of an OpMode.
+     * For example, motors will reset the their direction to 'forward'.
+     */
+    default void resetDeviceConfigurationForOpMode(){}
 
-  /**
-   * Closes this device
-   */
-  void close();
+    /**
+     * Closes this device
+     */
+    default void close(){}
 
 }

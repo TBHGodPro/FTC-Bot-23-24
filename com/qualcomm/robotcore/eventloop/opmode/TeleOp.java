@@ -30,9 +30,18 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+/*
+Modified by FTC Team Beta 8397 for use in the Virtual_Robot Simulator
+ */
+
 package com.qualcomm.robotcore.eventloop.opmode;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Provides an easy and non-centralized way of determining the OpMode list
@@ -49,7 +58,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TeleOp
-    {
+{
     /**
      * The name to be used on the driver station display. If empty, the name of
      * the OpMode class will be used.
@@ -63,4 +72,4 @@ public @interface TeleOp
      * @return the group into which the annotated OpMode is to be categorized
      */
     String group() default "";
-    }
+}

@@ -46,7 +46,7 @@ import java.util.concurrent.locks.Lock;
  */
 @SuppressWarnings("WeakerAccess")
 public class Deadline extends ElapsedTime
-    {
+{
     //----------------------------------------------------------------------------------------------
     // State
     //----------------------------------------------------------------------------------------------
@@ -61,47 +61,47 @@ public class Deadline extends ElapsedTime
     //----------------------------------------------------------------------------------------------
 
     public Deadline(long duration, TimeUnit unit)
-        {
+    {
         nsDuration = unit.toNanos(duration);
         nsDeadline = Misc.saturatingAdd(nsStartTime, nsDuration);
-        }
+    }
 
     public void reset()
-        {
+    {
         super.reset();
         nsDeadline = Misc.saturatingAdd(nsStartTime, nsDuration);
-        }
+    }
 
     public void cancel() // a handy and usefully-rememberable synonym
-        {
+    {
         expire();
-        }
+    }
 
     public void expire()
-        {
+    {
         nsDeadline = nsStartTime;
-        }
+    }
 
     public long getDuration(TimeUnit unit)
-        {
+    {
         return unit.convert(nsDuration, TimeUnit.NANOSECONDS);
-        }
+    }
 
     public long getDeadline(TimeUnit unit)
-        {
+    {
         return unit.convert(nsDeadline, TimeUnit.NANOSECONDS);
-        }
+    }
 
     public long timeRemaining(TimeUnit unit)
-        {
+    {
         long nsRemaining = Math.max(0, nsDeadline - nsNow());
         return unit.convert(nsRemaining, TimeUnit.NANOSECONDS);
-        }
+    }
 
     public boolean hasExpired()
-        {
+    {
         return timeRemaining(TimeUnit.NANOSECONDS) <= 0;
-        }
+    }
 
     //----------------------------------------------------------------------------------------------
     // Awaiting while allowing expire() to be called while that is happening.
@@ -110,53 +110,53 @@ public class Deadline extends ElapsedTime
     //----------------------------------------------------------------------------------------------
 
     public boolean await(CountDownLatch latch) throws InterruptedException
-        {
+    {
         long pollInterval = awaitUnit.convert(msPollInterval, TimeUnit.MILLISECONDS);
         for (;;)
-            {
+        {
             long waitInterval = Math.min(pollInterval, timeRemaining(awaitUnit));
             if (waitInterval <= 0)
-                {
+            {
                 return false; // deadline expired
-                }
+            }
             if (latch.await(waitInterval, awaitUnit))
-                {
-                return true;
-                }
-            }
-        }
-
-    public boolean tryLock(Lock lock) throws InterruptedException
-        {
-        long pollInterval = awaitUnit.convert(msPollInterval, TimeUnit.MILLISECONDS);
-        for (;;)
             {
-            long waitInterval = Math.min(pollInterval, timeRemaining(awaitUnit));
-            if (waitInterval <= 0)
-                {
-                return false; // deadline expired
-                }
-            if (lock.tryLock(waitInterval, awaitUnit))
-                {
                 return true;
-                }
-            }
-        }
-
-    public boolean tryAcquire(Semaphore semaphore) throws InterruptedException
-        {
-        long pollInterval = awaitUnit.convert(msPollInterval, TimeUnit.MILLISECONDS);
-        for (;;)
-            {
-            long waitInterval = Math.min(pollInterval, timeRemaining(awaitUnit));
-            if (waitInterval <= 0)
-                {
-                return false; // deadline expired
-                }
-            if (semaphore.tryAcquire(waitInterval, awaitUnit))
-                {
-                return true;
-                }
             }
         }
     }
+
+    public boolean tryLock(Lock lock) throws InterruptedException
+    {
+        long pollInterval = awaitUnit.convert(msPollInterval, TimeUnit.MILLISECONDS);
+        for (;;)
+        {
+            long waitInterval = Math.min(pollInterval, timeRemaining(awaitUnit));
+            if (waitInterval <= 0)
+            {
+                return false; // deadline expired
+            }
+            if (lock.tryLock(waitInterval, awaitUnit))
+            {
+                return true;
+            }
+        }
+    }
+
+    public boolean tryAcquire(Semaphore semaphore) throws InterruptedException
+    {
+        long pollInterval = awaitUnit.convert(msPollInterval, TimeUnit.MILLISECONDS);
+        for (;;)
+        {
+            long waitInterval = Math.min(pollInterval, timeRemaining(awaitUnit));
+            if (waitInterval <= 0)
+            {
+                return false; // deadline expired
+            }
+            if (semaphore.tryAcquire(waitInterval, awaitUnit))
+            {
+                return true;
+            }
+        }
+    }
+}

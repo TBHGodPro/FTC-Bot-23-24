@@ -36,5 +36,6 @@ package com.qualcomm.robotcore.hardware;
  * Used to specify what type of control system a particular piece of hardware is connected to
  */
 public enum ControlSystem {
+    MODERN_ROBOTICS,
     REV_HUB
 }

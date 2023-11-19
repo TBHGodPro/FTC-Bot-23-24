@@ -41,7 +41,7 @@ import java.util.Queue;
  * thread-safe.
  */
 public class MovingStatistics
-    {
+{
     //----------------------------------------------------------------------------------------------
     // State
     //----------------------------------------------------------------------------------------------
@@ -55,12 +55,12 @@ public class MovingStatistics
     //----------------------------------------------------------------------------------------------
 
     public MovingStatistics(int capacity)
-        {
+    {
         if (capacity <= 0) throw new IllegalArgumentException("MovingStatistics capacity must be positive");
         this.statistics = new Statistics();
         this.capacity   = capacity;
         this.samples    = new LinkedList<Double>();
-        }
+    }
 
     //----------------------------------------------------------------------------------------------
     // Accessing
@@ -71,36 +71,36 @@ public class MovingStatistics
      * @return the number of samples
      */
     public int getCount()
-        {
+    {
         return this.statistics.getCount();
-        }
+    }
 
     /**
      * Returns the mean of the current set of samples
      * @return the mean of the samples
      */
     public double getMean()
-        {
+    {
         return this.statistics.getMean();
-        }
+    }
 
     /**
      * Returns the sample variance of the current set of samples
      * @return the variance of the samples
      */
     public double getVariance()
-        {
+    {
         return this.statistics.getVariance();
-        }
+    }
 
     /**
      * Returns the sample standard deviation of the current set of samples
      * @return the standard deviation of the samples
      */
     public double getStandardDeviation()
-        {
+    {
         return this.statistics.getStandardDeviation();
-        }
+    }
 
     //----------------------------------------------------------------------------------------------
     // Modifying
@@ -110,22 +110,22 @@ public class MovingStatistics
      * Resets the statistics to an empty state
      */
     public void clear()
-        {
+    {
         this.statistics.clear();
         this.samples.clear();
-        }
+    }
 
     /**
      * Adds a new sample to the statistics, possibly also removing the oldest.
      * @param x the sample to add
      */
     public void add(double x)
-        {
+    {
         this.statistics.add(x);
         this.samples.add(x);
         if (this.samples.size() > capacity)
-            {
+        {
             this.statistics.remove(this.samples.remove());
-            }
         }
     }
+}

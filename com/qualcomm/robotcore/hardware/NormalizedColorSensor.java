@@ -38,7 +38,7 @@ package com.qualcomm.robotcore.hardware;
  * intensities available using {@link ColorSensor}.
  */
 public interface NormalizedColorSensor extends HardwareDevice
-    {
+{
     /**
      * Reads the colors from the sensor
      * @return the current set of colors from the sensor
@@ -46,4 +46,4 @@ public interface NormalizedColorSensor extends HardwareDevice
     NormalizedRGBA getNormalizedColors();
     float getGain();
     void setGain(float newGain);
-    }
+}

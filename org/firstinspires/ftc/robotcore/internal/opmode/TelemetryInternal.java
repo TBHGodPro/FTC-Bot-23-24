@@ -36,7 +36,7 @@ package org.firstinspires.ftc.robotcore.internal.opmode;
  * {@link TelemetryInternal} is an internal helper telemetry interface
  */
 public interface TelemetryInternal
-    {
+{
     boolean tryUpdateIfDirty();
     void resetTelemetryForOpMode();
-    }
+}

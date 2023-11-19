@@ -32,6 +32,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package org.firstinspires.ftc.robotcore.external.navigation;
 
+import java.util.Locale;
+
 /**
  * Instances of {@link AngularVelocity} represent an instantaneous body-referenced 3D rotation rate.
  *
@@ -47,7 +49,7 @@ package org.firstinspires.ftc.robotcore.external.navigation;
  * @see <a href="https://en.wikipedia.org/wiki/Angular_velocity">Angular Velocity</a>
  */
 public class AngularVelocity
-    {
+{
     //----------------------------------------------------------------------------------------------
     // State
     //----------------------------------------------------------------------------------------------
@@ -85,18 +87,18 @@ public class AngularVelocity
     //----------------------------------------------------------------------------------------------
 
     public AngularVelocity()
-        {
+    {
         this(AngleUnit.DEGREES, 0, 0, 0, 0);
-        }
+    }
 
     public AngularVelocity(AngleUnit unit, float xRotationRate, float yRotationRate, float zRotationRate, long acquisitionTime)
-        {
+    {
         this.unit = unit;
         this.xRotationRate = xRotationRate;
         this.yRotationRate = yRotationRate;
         this.zRotationRate = zRotationRate;
         this.acquisitionTime = acquisitionTime;
-        }
+    }
 
     /**
      * Converts this {@link AngularVelocity} to one with the indicated angular units.
@@ -105,16 +107,22 @@ public class AngularVelocity
      * @return a new [@link AngularVelocity} with the same data but in the indicated units
      */
     public AngularVelocity toAngleUnit(AngleUnit unit)
-        {
+    {
         if (unit != this.unit)
-            {
+        {
             return new AngularVelocity(unit,
                     unit.fromUnit(this.unit, xRotationRate),
                     unit.fromUnit(this.unit, yRotationRate),
                     unit.fromUnit(this.unit, zRotationRate),
                     this.acquisitionTime);
-            }
+        }
         else
             return this;
-        }
     }
+
+    @Override
+    public String toString()
+    {
+        return String.format(Locale.US, "{x=%.3f, y=%.3f, z=%.3f (%s)}", xRotationRate, yRotationRate, zRotationRate, unit);
+    }
+}

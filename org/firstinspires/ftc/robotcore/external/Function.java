@@ -34,6 +34,6 @@ package org.firstinspires.ftc.robotcore.external;
 
 /** If we were running Java8, we'd just use the built-in interface */
 public interface Function<T, R>
-    {
+{
     R apply(T arg);
-    }
+}

@@ -30,75 +30,42 @@
 
 package com.qualcomm.robotcore.hardware;
 
-import com.qualcomm.robotcore.R;
-import com.qualcomm.robotcore.hardware.configuration.annotations.AnalogSensorType;
-import com.qualcomm.robotcore.hardware.configuration.annotations.DeviceProperties;
-
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-
 /**
  * Control a single analog device
  */
-@AnalogSensorType
-@DeviceProperties(name = "@string/configTypeAnalogInput", xmlTag = "AnalogInput", builtIn = true)
 public class AnalogInput implements HardwareDevice {
 
-  private AnalogInputController controller = null;
-  private int channel = -1;
+    private double voltage = 0;
+    private final double MAX_ANALOG_INPUT_VOLTAGE;
 
-  /**
-   * Constructor
-   *
-   * @param controller AnalogInput controller this channel is attached to
-   * @param channel channel on the analog input controller
-   */
-  public AnalogInput(AnalogInputController controller, int channel) {
-    this.controller = controller;
-    this.channel = channel;
-  }
+    public AnalogInput(double maxVoltage){ MAX_ANALOG_INPUT_VOLTAGE = maxVoltage; }
 
-  @Override public Manufacturer getManufacturer() {
-    return controller.getManufacturer();
-  }
+    /**
+     * Returns the current voltage of this input.
+     * @return the current analog input voltage, in volts.
+     */
+    public synchronized double getVoltage() {
+        return voltage;
+    }
 
-  /**
-   * Returns the current voltage of this input.
-   * @return the current analog input voltage, in volts.
-   */
-  public double getVoltage() {
-    return controller.getAnalogInputVoltage(channel);
-  }
+    /**
+     * Internal use only. Update the value of voltage.
+     */
+    public synchronized void update(double voltage){
+        this.voltage = voltage;
+    }
 
-  /**
-   * Returns the maximum value that getVoltage() is capable of reading
-   * @return the maximum value that getVoltage() is capable of reading, in volts.
-   * @see #getVoltage()
-   */
-  public double getMaxVoltage() {
-    return controller.getMaxAnalogInputVoltage();
-  }
+    /**
+     * Returns the maximum value that getVoltage() is capable of reading
+     * @return the maximum value that getVoltage() is capable of reading, in volts.
+     * @see #getVoltage()
+     */
+    public double getMaxVoltage() {
+        return MAX_ANALOG_INPUT_VOLTAGE;
+    }
 
-  @Override
-  public String getDeviceName() {
-    return AppUtil.getDefContext().getString(R.string.configTypeAnalogInput);
-  }
+    public void close() {
+        // take no action
+    }
 
-  @Override
-  public String getConnectionInfo() {
-    return controller.getConnectionInfo() + "; analog port " + channel;
-  }
-
-  @Override
-  public int getVersion() {
-    return 1;
-  }
-
-  @Override
-  public void resetDeviceConfigurationForOpMode() {
-  }
-
-  @Override
-  public void close() {
-    // take no action
-  }
 }

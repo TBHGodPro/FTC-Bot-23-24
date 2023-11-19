@@ -29,67 +29,37 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
+/*
+Modified by FTC Team Beta 8397 for use in the Virtual_Robot Simulator
+ */
+
 package com.qualcomm.robotcore.hardware;
 
-import androidx.annotation.ColorInt;
+import com.qualcomm.robotcore.hardware.HardwareDevice;
 
 /**
- * Color Sensor
+ * An abridged version of the FTC ColorSensor interface.
  */
 public interface ColorSensor extends HardwareDevice {
 
-  /**
-   * Get the Red values detected by the sensor as an int.
-   * @return reading, unscaled.
-   */
-  int red();
+    /**
+     * @return Red channel value, 0..255
+     */
+    public int red();
 
-  /**
-   * Get the Green values detected by the sensor as an int.
-   * @return reading, unscaled.
-   */
-  int green();
+    /**
+     * @return Green channel value, 0..255
+     */
+    public int green();
 
-  /**
-   * Get the Blue values detected by the sensor as an int.
-   * @return reading, unscaled.
-   */
-  int blue();
+    /**
+     * @return Blue channel value, 0..255
+     */
+    public int blue();
 
-  /**
-   * Get the amount of light detected by the sensor as an int.
-   * @return reading, unscaled.
-   */
-  int alpha();
-
-  /**
-   * Get the sensed ARGB color value from the sensor.
-   * @return a packed 32-bit integer (to be interpreted as unsigned) containing all 4 color channels.
-   *         To extract a specific channel, you can either manually bitshift and bitmask, (e.g. to extract
-   *         red,  (color &gt;&gt; 16) &amp; 0xFF) or you can use the Android color class' red() green() and blue()
-   *         methods.
-   */
-  @ColorInt int argb();
-
-  /**
-   * Enable the LED light
-   * @param enable true to enable; false to disable
-   */
-  void enableLed(boolean enable);
-
-  /**
-   * Set the I2C address to a new value.
-   *
-   */
-  void setI2cAddress(I2cAddr newAddress);
-
-  /**
-   * Get the current I2C Address of this object.
-   * Not necessarily the same as the I2C address of the actual device.
-   *
-   * Return the current I2C address.
-   * @return current I2C address
-   */
-  I2cAddr getI2cAddress();
+    /**
+     * @return Alpha value 0..255
+     */
+    public int alpha();
 
 }

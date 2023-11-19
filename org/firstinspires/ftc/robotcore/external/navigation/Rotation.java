@@ -36,7 +36,7 @@ package org.firstinspires.ftc.robotcore.external.navigation;
  * {@link Rotation} captures an angluar direction of movement
  */
 public enum Rotation
-    {
+{
     CW,
     CCW
-    }
+}

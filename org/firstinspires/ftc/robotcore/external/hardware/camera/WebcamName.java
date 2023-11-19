@@ -30,35 +30,38 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+/* Modified for use in the virtual_robot simulator */
+
 package org.firstinspires.ftc.robotcore.external.hardware.camera;
 
-import android.hardware.usb.UsbManager;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.qualcomm.robotcore.hardware.HardwareDevice;
-import com.qualcomm.robotcore.util.SerialNumber;
 
-public interface WebcamName extends CameraName, HardwareDevice
-    {
-    /**
-     * Returns the USB serial number of the webcam
-     * @return the USB serial number of the webcam
-     */
-    @NonNull SerialNumber getSerialNumber();
+import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 
-    /**
-     * Returns the USB device path currently associated with this webcam.
-     * May be null if the webcam is not presently attached.
-     *
-     * @return returns the USB device path associated with this name.
-     * @see UsbManager#getDeviceList()
-     */
-    @Nullable String getUsbDeviceNameIfAttached();
-
-    /**
-     * Returns whether this camera currently attached to the robot controller
-     * @return whether this camera currently attached to the robot controller
-     */
-    boolean isAttached();
+public class WebcamName implements CameraName, HardwareDevice {
+    @Override
+    public boolean isWebcam() {
+        return false;
     }
+
+    @Override
+    public boolean isCameraDirection() {
+        return false;
+    }
+
+    @Override
+    public boolean isSwitchable() {
+        return false;
+    }
+
+    @Override
+    public boolean isUnknown() {
+        return false;
+    }
+
+    @Override
+    public boolean requestCameraPermission(Deadline deadline) {
+        return false;
+    }
+}

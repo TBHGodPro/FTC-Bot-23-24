@@ -30,9 +30,12 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+/*
+Modified by FTC Team Beta for use in the Virtual Robot Simulator
+ */
 package com.qualcomm.robotcore.hardware;
 
-import org.firstinspires.ftc.robotcore.internal.system.Misc;
 
 /**
  * {@link PIDFCoefficients} conveys a set of configuration parameters for a PIDF algorithm,
@@ -43,7 +46,7 @@ import org.firstinspires.ftc.robotcore.internal.system.Misc;
  * @see DcMotorEx#setPIDFCoefficients(DcMotor.RunMode, PIDFCoefficients)
  */
 public class PIDFCoefficients
-    {
+{
     public double p;
     public double i;
     public double d;
@@ -51,45 +54,45 @@ public class PIDFCoefficients
     public MotorControlAlgorithm algorithm;
 
     @Override public String toString()
-        {
-        return Misc.formatForUser("%s(p=%f i=%f d=%f f=%f alg=%s)", getClass().getSimpleName(), p, i, d, f, algorithm);
-        }
+    {
+        return String.format("%s(p=%f i=%f d=%f f=%f alg=%s)", getClass().getSimpleName(), p, i, d, f, algorithm);
+    }
 
     public PIDFCoefficients()
-        {
+    {
         this.p = this.i = this.d = this.f = 0;
         this.algorithm = MotorControlAlgorithm.PIDF;
-        }
+    }
 
     public PIDFCoefficients(double p, double i, double d, double f, MotorControlAlgorithm algorithm)
-        {
+    {
         this.p = p;
         this.i = i;
         this.d = d;
         this.f = f;
         this.algorithm = algorithm;
-        }
+    }
 
     public PIDFCoefficients(double p, double i, double d, double f)
-        {
+    {
         this(p, i, d, f, MotorControlAlgorithm.PIDF);
-        }
+    }
 
     public PIDFCoefficients(PIDFCoefficients them)
-        {
+    {
         this.p = them.p;
         this.i = them.i;
         this.d = them.d;
         this.f = them.f;
         this.algorithm = them.algorithm;
-        }
+    }
 
     public PIDFCoefficients(PIDCoefficients them)
-        {
+    {
         this.p = them.p;
         this.i = them.i;
         this.d = them.d;
         this.f = 0;
         this.algorithm = MotorControlAlgorithm.LegacyPID;
-        }
     }
+}

@@ -30,22 +30,20 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.robotcore.external.hardware.camera;
 
-import android.content.Context;
+/* Modified for use in the virtual_robot simulator */
+
+package org.firstinspires.ftc.robotcore.external.hardware.camera;
 
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 
-import org.firstinspires.ftc.robotcore.external.function.Consumer;
-import org.firstinspires.ftc.robotcore.external.function.Continuation;
-import org.firstinspires.ftc.robotcore.internal.camera.delegating.SwitchableCameraName;
 import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 
 /**
  * {@link CameraName} identifies a {@link HardwareDevice} which is a camera.
  */
 public interface CameraName
-    {
+{
     /**
      * Returns whether or not this name is that of a webcam. If true, then the
      * {@link CameraName} can be cast to a {@link WebcamName}.
@@ -55,22 +53,8 @@ public interface CameraName
      */
     boolean isWebcam();
 
-    /**
-     * Returns whether or not this name is that of a builtin phone camera. If true, then the
-     * {@link CameraName} can be cast to a {@link BuiltinCameraName}.
-     *
-     * @return whether or not this name is that of a builtin phone camera
-     * @see BuiltinCameraName
-     */
     boolean isCameraDirection();
 
-    /**
-     * Returns whether this name is one representing the ability to switch amongst a
-     * series of member cameras. If true, then the receiver can be cast to a
-     * {@link SwitchableCameraName}.
-     *
-     * @return whether this is a {@link SwitchableCameraName}
-     */
     boolean isSwitchable();
 
 
@@ -98,7 +82,7 @@ public interface CameraName
      *
      * @see #requestCameraPermission
      */
-    void asyncRequestCameraPermission(Context context, Deadline deadline, final Continuation<? extends Consumer<Boolean>> continuation);
+//    void asyncRequestCameraPermission(Context context, Deadline deadline, final Continuation<? extends Consumer<Boolean>> continuation);
 
     /**
      * Requests from the user permission to use the camera if same has not already been granted.
@@ -108,7 +92,6 @@ public interface CameraName
      * @param deadline      the time by which the request must be honored or given up as ungranted
      * @return              whether or not permission to use the camera has been granted.
      *
-     * @see #asyncRequestCameraPermission
      */
     boolean requestCameraPermission(Deadline deadline);
 
@@ -118,5 +101,5 @@ public interface CameraName
      *
      * @return The properties of the given camera. A degenerate empty set of properties is returned on error.
      */
-    CameraCharacteristics getCameraCharacteristics();
-    }
+//    CameraCharacteristics getCameraCharacteristics();
+}

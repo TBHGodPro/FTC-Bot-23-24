@@ -41,10 +41,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
  * whose primary interface is DcMotor. To access it, cast your DcMotor object
  * to DcMotorEx. However, it is perhaps prudent to first test whether the cast will succeed by
  * testing using 'instanceof'.
- * @see PwmControl
  */
 public interface DcMotorEx extends DcMotor
-    {
+{
     /**
      * Individually energizes this particular motor
      * @see #setMotorDisable()
@@ -139,15 +138,14 @@ public interface DcMotorEx extends DcMotor
 
     /**
      * A shorthand for setting the PIDF coefficients for the {@link DcMotor.RunMode#RUN_USING_ENCODER}
-     * mode. {@link MotorControlAlgorithm#PIDF} is used.
+     * mode.
      *
-     * @see #setPIDFCoefficients(RunMode, PIDFCoefficients)
      */
     void setVelocityPIDFCoefficients(double p, double i, double d, double f);
 
     /**
      * A shorthand for setting the PIDF coefficients for the {@link DcMotor.RunMode#RUN_TO_POSITION}
-     * mode. {@link MotorControlAlgorithm#PIDF} is used.
+     * mode.
      *
      * Readers are reminded that {@link DcMotor.RunMode#RUN_TO_POSITION} mode makes use of <em>both</em>
      * the coefficients set for RUN_TO_POSITION <em>and</em> the coefficients set for RUN_WITH_ENCODER,
@@ -156,8 +154,6 @@ public interface DcMotorEx extends DcMotor
      * layering, only the proportional ('p') coefficient makes logical sense for use in the RUN_TO_POSITION
      * coefficients.
      *
-     * @see #setVelocityPIDFCoefficients(double, double, double, double)
-     * @see #setPIDFCoefficients(RunMode, PIDFCoefficients)
      */
     void setPositionPIDFCoefficients(double p);
 
@@ -221,4 +217,4 @@ public interface DcMotorEx extends DcMotor
      * @return whether the current consumption of this motor exceeds the alert threshold.
      */
     boolean isOverCurrent();
-    }
+}

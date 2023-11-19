@@ -59,6 +59,11 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+/*
+Modified by Team Beta for use in the Virtual Robot Simulator
+ */
+
 package com.qualcomm.robotcore.hardware;
 
 /**
@@ -66,9 +71,8 @@ package com.qualcomm.robotcore.hardware;
  * Such channels have a boolean state, and are modal as to direction, being either input
  * channels or output channels.
  */
-@SuppressWarnings("WeakerAccess")
 public interface DigitalChannel extends HardwareDevice
-    {
+{
     /**
      * Digital channel mode - input or output
      */
@@ -99,6 +103,4 @@ public interface DigitalChannel extends HardwareDevice
      */
     void setState(boolean state);
 
-    /** @deprecated use {@link #setMode(Mode)} instead */
-    @Deprecated void setMode(DigitalChannelController.Mode mode);
-    }
+}

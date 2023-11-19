@@ -30,10 +30,9 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+/* Modified by Team Beta 8397 for use in the Virtual Robot Simulator */
 package org.firstinspires.ftc.robotcore.external;
-
-import androidx.annotation.Nullable;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -151,7 +150,7 @@ import java.util.Locale;
  */
 @SuppressWarnings("javadoc")
 public interface Telemetry
-    {
+{
     //----------------------------------------------------------------------------------------------
     // Core usage
     //----------------------------------------------------------------------------------------------
@@ -330,7 +329,7 @@ public interface Telemetry
      * Instances of {@link Line} build lines of data on the driver station telemetry display.
      */
     interface Line
-        {
+    {
         /**
          * Adds a new data item at the end of the line which is the receiver.
          * @see Telemetry#addData(String, String, Object...)
@@ -351,7 +350,7 @@ public interface Telemetry
          * @see Telemetry#addData(String, String, Func)
          */
         <T> Item addData(String caption, String format, Func<T> valueProducer);
-        }
+    }
 
     /**
      * Creates and returns a new line in the receiver {@link Telemetry}.
@@ -380,10 +379,10 @@ public interface Telemetry
     /**
      * Instances of {@link Item} represent an item of data on the drive station telemetry display.
      *
-     * @see #addData(String, Object)
+     * @see {@link #addData(String, Object)}
      */
     interface Item
-        {
+    {
         /**
          * Returns the caption associated with this item.
          * @return the caption associated with this item.
@@ -445,7 +444,7 @@ public interface Telemetry
          * @see #clear()
          * @see #isRetained()
          */
-        Item setRetained(@Nullable Boolean retained);
+        Item setRetained(Boolean retained);
 
         /**
          * Returns whether the item is to be retained in a clear() operation.
@@ -477,7 +476,7 @@ public interface Telemetry
          * @see #addData(String, String, Func)
          */
         <T> Item addData(String caption, String format, Func<T> valueProducer);
-        }
+    }
 
     //----------------------------------------------------------------------------------------------
     // Properties
@@ -540,11 +539,11 @@ public interface Telemetry
     void setCaptionValueSeparator(String captionValueSeparator);
 
     enum DisplayFormat
-        {
+    {
         CLASSIC,   // What you've all come to know and love (or not) since 2015
         MONOSPACE, // Same as classic, except uses a monospaced font so you can column align data
         HTML;      // Allows use of a subset of HTML tags, enabling "rich text" display (e.g. color & size)
-        }
+    }
 
     /**
      * Sets the telemetry display format on the Driver Station. See the comments on {@link DisplayFormat}.
@@ -564,16 +563,16 @@ public interface Telemetry
      * @see #addData(String, Object)
      */
     interface Log
-        {
+    {
         /**
          * {@link DisplayOrder} instances indicate the desired ordering of a {@link #log()}.
          */
         enum DisplayOrder { NEWEST_FIRST, OLDEST_FIRST }
 
         /**
-         * Returns the maximum number of lines which will be retained in a {@link #log()} and
+         * Returns the maximum number of lines which will be retained in a {@link #log()()} and
          * shown on the driver station display.
-         * @return the maximum number of lines which will be retained in a {@link #log()}
+         * @return the maximum number of lines which will be retained in a {@link #log()()}
          * @see #setCapacity(int)
          */
         int getCapacity();
@@ -614,7 +613,7 @@ public interface Telemetry
          * Removes all entries from this {@link Log}
          */
         void clear();
-        }
+    }
 
     /**
      * Returns the log of this {@link Telemetry} to which log entries may be appended.
@@ -622,4 +621,4 @@ public interface Telemetry
      * @see Log#addData(String, Object)
      */
     Log log();
-    }
+}

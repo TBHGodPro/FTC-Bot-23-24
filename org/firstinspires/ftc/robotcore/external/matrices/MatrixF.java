@@ -30,9 +30,14 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.robotcore.external.matrices;
 
-import android.annotation.SuppressLint;
+/*
+Modified by FTC Team Beta 8397 for use in the Virtual Robot simulator.
+
+NOTE: the inverse() method does not work properly for 2x2 and 1x1 matrices. This would be easily fixed, but
+will be left the way it is until the method in the FTC SDK version of MatrixF is fixed.
+ */
+package org.firstinspires.ftc.robotcore.external.matrices;
 
 import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.NonConst;
@@ -670,7 +675,6 @@ public abstract class MatrixF
         return dimensionsError(this.numRows, this.numCols);
         }
 
-    @SuppressLint("DefaultLocale")
     protected static RuntimeException dimensionsError(int numRows, int numCols)
         {
         return new IllegalArgumentException(String.format("matrix dimensions are incorrect: rows=%d cols=%d", numRows, numCols));
@@ -776,6 +780,7 @@ public abstract class MatrixF
 
         if (this.numRows == 2)
             {
+                // Error in FTC SDK has been fixed, so fixing it here as well.
             MatrixF result = this.emptyMatrix(2,2);
 
             final float m00=get(0,0), m01=get(0,1);
@@ -793,6 +798,7 @@ public abstract class MatrixF
 
         if (this.numRows == 1)
             {
+                // Error in FTC SDK has been fixed, so fixing it here as well.
             MatrixF result = this.emptyMatrix(1,1);
             result.put(0,0, 1 / get(0,0));
             return result;

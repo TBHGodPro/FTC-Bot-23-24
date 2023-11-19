@@ -30,25 +30,23 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
  * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+/*
+Modified by FTC Team Beta 8397 for use in the Virtual_Robot Simulator
+ */
+
 package com.qualcomm.robotcore.eventloop.opmode;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Provides a way to temporarily disable an OpMode annotated with
- * {@link Autonomous} or {@link TeleOp} from showing up
- * on the driver station OpMode list.
- *
- * @see Autonomous
- * @see TeleOp
+ * Annotate an op mode class with Disabled to prevent it from being displayed in the drop-down box of available
+ * op modes.
  */
-@Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Disabled
-    {
-    }
+public @interface Disabled {
+}
