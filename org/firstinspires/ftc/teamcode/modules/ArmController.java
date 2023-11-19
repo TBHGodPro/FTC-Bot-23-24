@@ -20,10 +20,12 @@ public class ArmController extends Module {
 
     public static final int armSpeed = 1200;
 
-    public static final double wristPosInterval = 0.0035;
+    public static final double wristPosInterval = 0.0045;
 
     public static final double wristMinRange = 0.25;
     public static final double wristMaxRange = 1;
+
+    public static final double wristAngleCorrectionCoeff = 2500;
 
     public static final double handOpenPos = 0.65;
     public static final double handClosedPos = 1;
@@ -33,7 +35,7 @@ public class ArmController extends Module {
     public static final int armIntakePosManual = 170;
     public static final int armIntakePosAutonomous = 315;
 
-    public static final double wristIntakePos = 0.435;
+    public static final double wristIntakePos = 0.54;
 
     public final boolean shouldOpenHandAtIntake;
 
@@ -42,7 +44,12 @@ public class ArmController extends Module {
     public static final int armBackboardPosManual = 480;
     public static final int armBackboardPosAutonomous = 625;
 
-    public static final double wristBackboardPos = 0.715;
+    public static final double wristBackboardPos = 0.928;
+
+    // - Overhead Position
+    public static final int armOverheadPos = 1950;
+
+    public static final double wristOverheadPos = 1.8;
 
     // -----------------
 
@@ -89,11 +96,7 @@ public class ArmController extends Module {
     }
 
     public void prep() {
-        arm.setTargetPosition(armPos);
-
-        arm.setMode(RunMode.RUN_TO_POSITION);
-
-        arm.setVelocity(armSpeed);
+        resetZeroPosition();
     }
 
     public void update() {
@@ -104,8 +107,8 @@ public class ArmController extends Module {
         armPower -= Math.pow(gamepad.left_trigger, armNonLinearity);
 
         int nextPos = (int) (armPos + armPower * armManualInterval);
-        if (nextPos <= armMaxPos && nextPos >= 0) {
-            armPos += (int) (armPower * armManualInterval);
+        if (nextPos <= armMaxPos) {
+            armPos = nextPos;
         }
 
         arm.setTargetPosition(armPos);
@@ -118,9 +121,9 @@ public class ArmController extends Module {
             wristPos -= wristPosInterval;
         }
 
-        wristPos = Math.max(Math.min(wristPos, 1), 0);
+        wristPos = Math.max(Math.min(wristPos, 2), -1);
 
-        wrist.setPosition(wristPos);
+        wrist.setPosition(Math.max(Math.min(wristPos - (armPos / wristAngleCorrectionCoeff), 1), 0));
 
         // Hand Control
         if (gamepad.x) {
@@ -146,6 +149,29 @@ public class ArmController extends Module {
             armPos = armBackboardPos;
             wristPos = wristBackboardPos;
         }
+
+        // Overhead Position
+        if (gamepad.guide) {
+            armPos = armOverheadPos;
+            wristPos = wristOverheadPos;
+        }
+
+        // Reset Arm
+        if (gamepad.back) {
+            resetZeroPosition();
+        }
+    }
+
+    public void resetZeroPosition() {
+        arm.setMode(RunMode.STOP_AND_RESET_ENCODER);
+
+        armPos = 0;
+
+        arm.setTargetPosition(armPos);
+
+        arm.setMode(RunMode.RUN_TO_POSITION);
+
+        arm.setVelocity(armSpeed);
     }
 
     @Override
@@ -166,6 +192,12 @@ public class ArmController extends Module {
                     @Override
                     public String value() {
                         return wristPos + "";
+                    }
+                })
+                .addData("True Wrist Position", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return Math.max(Math.min(wristPos - (armPos / wristAngleCorrectionCoeff), 1), 0) + "";
                     }
                 })
                 .addData("Hand State", new Func<String>() {
