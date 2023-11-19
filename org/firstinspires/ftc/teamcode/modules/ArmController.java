@@ -18,7 +18,7 @@ public class ArmController extends Module {
 
     public static final int armMaxPos = 1960;
 
-    public static final int armSpeed = 1500;
+    public static final int armSpeed = 1200;
 
     public static final double wristPosInterval = 0.0035;
 
@@ -35,7 +35,7 @@ public class ArmController extends Module {
 
     public static final double wristIntakePos = 0.435;
 
-    public final boolean shouldOpenWristAtIntake;
+    public final boolean shouldOpenHandAtIntake;
 
     // - Backboard Position
     public final int armBackboardPos;
@@ -72,7 +72,7 @@ public class ArmController extends Module {
         this.wrist = wrist;
         this.hand = hand;
 
-        shouldOpenWristAtIntake = !isAutonomous;
+        shouldOpenHandAtIntake = !isAutonomous;
         this.armIntakePos = isAutonomous ? armIntakePosAutonomous : armIntakePosManual;
         this.armBackboardPos = isAutonomous ? armBackboardPosAutonomous : armBackboardPosManual;
     }
@@ -131,6 +131,21 @@ public class ArmController extends Module {
         }
 
         hand.setPosition(isHandClosed ? handClosedPos : handOpenPos);
+
+        // Intake Position
+        if (gamepad.b) {
+            armPos = armIntakePos;
+            wristPos = wristIntakePos;
+            if (shouldOpenHandAtIntake) {
+                isHandClosed = false;
+            }
+        }
+
+        // Backboard Position
+        if (gamepad.a) {
+            armPos = armBackboardPos;
+            wristPos = wristBackboardPos;
+        }
     }
 
     @Override
