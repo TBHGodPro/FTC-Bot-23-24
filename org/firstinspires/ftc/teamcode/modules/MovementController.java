@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 public class MovementController extends Module {
     // --- Constants ---
 
-    public RevHubOrientationOnRobot hubOrientation = new RevHubOrientationOnRobot(
+    public static final RevHubOrientationOnRobot hubOrientation = new RevHubOrientationOnRobot(
             RevHubOrientationOnRobot.LogoFacingDirection.UP,
             RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD);
 
@@ -25,11 +25,11 @@ public class MovementController extends Module {
 
     // -----------------
 
-    public IMU imu;
+    public final IMU imu;
 
-    public Gamepad gamepad;
+    public final Gamepad gamepad;
 
-    public boolean doYawCorrections;
+    public final boolean doYawCorrections;
 
     public Double desiredAngle;
 

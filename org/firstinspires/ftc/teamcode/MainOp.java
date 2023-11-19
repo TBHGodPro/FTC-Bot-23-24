@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.teamcode.modules.ArmController;
 import org.firstinspires.ftc.teamcode.modules.MovementController;
 import org.firstinspires.ftc.teamcode.modules.WheelController;
 
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "MainOp")
 public class MainOp extends OpMode {
@@ -18,6 +20,7 @@ public class MainOp extends OpMode {
 
     public WheelController wheels;
     public MovementController movements;
+    public ArmController arm;
 
     public long frames;
 
@@ -45,6 +48,14 @@ public class MainOp extends OpMode {
 
         movements.init();
 
+        arm = new ArmController(
+                gamepad,
+                hardwareMap.get(DcMotorEx.class, "arm"),
+                hardwareMap.get(Servo.class, "wrist"),
+                hardwareMap.get(Servo.class, "hand"));
+
+        arm.init();
+
         telemetry.addLine("--- Bot ---");
         telemetry.addLine();
         telemetry.addData("FPS", new Func<String>() {
@@ -69,6 +80,8 @@ public class MainOp extends OpMode {
         frames = 0;
 
         movements.prep();
+
+        arm.prep();
     }
 
     // Run in a loop after PLAY is pressed until STOP is pressed
@@ -77,6 +90,8 @@ public class MainOp extends OpMode {
         movements.updatePowers(wheels);
 
         wheels.update();
+
+        arm.update();
     }
 
     // Run once STOP is pressed

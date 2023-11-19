@@ -59,10 +59,10 @@ public class WheelController extends Module {
     public final DcMotorEx frontLeft;
     public final DcMotorEx frontRight;
 
-    public final DcMotorEx.Direction leftDirection = DcMotorEx.Direction.REVERSE;
-    public final DcMotorEx.Direction rightDirection = DcMotorEx.Direction.FORWARD;
+    public static final DcMotorEx.Direction leftDirection = DcMotorEx.Direction.REVERSE;
+    public static final DcMotorEx.Direction rightDirection = DcMotorEx.Direction.FORWARD;
 
-    public final ZeroPowerBehavior zeroPowerBehavior = ZeroPowerBehavior.BRAKE;;
+    public static final ZeroPowerBehavior zeroPowerBehavior = ZeroPowerBehavior.BRAKE;;
 
     public final WheelPowers powers;
 
