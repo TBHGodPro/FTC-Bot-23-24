@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.modules;
 
+import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Utils;
+
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class WheelController {
+public class WheelController extends Module {
     // --- Constants ---
 
     public static final int setPositionClearance = 10;
@@ -156,5 +160,25 @@ public class WheelController {
         setRunMode(RunMode.STOP_AND_RESET_ENCODER);
 
         setRunMode(mode);
+    }
+
+    @Override
+    public void addTelemetry(Telemetry telemetry) {
+        telemetry.addData("Target", new Func<String>() {
+            @Override
+            public String value() {
+                return target == null ? "NONE"
+                        : target.backLeft + ", " + target.backRight + ", " + target.frontLeft + ", " + target.frontRight
+                                + " in " + target.currentTime.milliseconds() + "/" + target.targetTime;
+            }
+        })
+                .addData("Powers", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return Utils.round(powers.backLeft) + ", " + Utils.round(powers.backRight) + ", "
+                                + Utils.round(powers.frontLeft) + ", "
+                                + Utils.round(powers.frontRight);
+                    }
+                });
     }
 }

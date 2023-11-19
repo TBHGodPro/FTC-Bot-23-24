@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode.modules;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Utils;
+import org.firstinspires.ftc.robotcore.external.Func;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 
-public class MovementController {
+public class MovementController extends Module {
     // --- Constants ---
 
     public RevHubOrientationOnRobot hubOrientation = new RevHubOrientationOnRobot(
@@ -64,10 +67,10 @@ public class MovementController {
 
         // - Horizontal
         if (gamepad.dpad_right) {
-            rawY += dpadHorizontalPower;
+            rawX += dpadHorizontalPower;
         }
         if (gamepad.dpad_left) {
-            rawY -= dpadHorizontalPower;
+            rawX -= dpadHorizontalPower;
         }
 
         // Get Facing Angle
@@ -108,7 +111,9 @@ public class MovementController {
                 desiredAngle = null;
             } else {
                 if (desiredAngle == null) {
-                    desiredAngle = rawAngle;
+                    if (Math.abs(imu.getRobotAngularVelocity(AngleUnit.DEGREES).zRotationRate) < 20) {
+                        desiredAngle = rawAngle;
+                    }
                 } else {
                     if (rawAngle != desiredAngle) {
                         if (rawAngle > desiredAngle) {
@@ -149,5 +154,20 @@ public class MovementController {
 
         // Send Power
         wheelController.setPowers(backLeft, backRight, frontLeft, frontRight);
+    }
+
+    public void addTelemetry(Telemetry telemetry) {
+        telemetry.addData("Angle", new Func<String>() {
+            @Override
+            public String value() {
+                return Utils.round(imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES)) + "°";
+            }
+        })
+                .addData("Desired Angle", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return Utils.round(desiredAngle == null ? 0 : desiredAngle) + "°";
+                    }
+                });
     }
 }

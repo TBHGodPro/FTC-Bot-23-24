@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.teamcode.modules.MovementController;
 import org.firstinspires.ftc.teamcode.modules.WheelController;
 
@@ -17,6 +18,8 @@ public class MainOp extends OpMode {
 
     public WheelController wheels;
     public MovementController movements;
+
+    public long frames;
 
     // Run once INIT is pressed
     public void init() {
@@ -41,19 +44,36 @@ public class MainOp extends OpMode {
         movements = new MovementController(hardwareMap.get(IMU.class, "imu"), gamepad, !isAutonomous);
 
         movements.init();
+
+        telemetry.addLine("--- Bot ---");
+        telemetry.addLine();
+        telemetry.addData("FPS", new Func<String>() {
+            @Override
+            public String value() {
+                return (frames / getRuntime()) + "/s";
+            }
+        });
+        telemetry.addLine();
+
+        movements.setupTelemetry(telemetry);
+        wheels.setupTelemetry(telemetry);
     }
 
     // Run in a loop after INIT is pressed until PLAY is pressed
     public void init_loop() {
+        frames += 1;
     }
 
     // Run once PLAY is pressed
     public void start() {
+        frames = 0;
+
         movements.prep();
     }
 
     // Run in a loop after PLAY is pressed until STOP is pressed
     public void loop() {
+        frames += 1;
         movements.updatePowers(wheels);
 
         wheels.update();
