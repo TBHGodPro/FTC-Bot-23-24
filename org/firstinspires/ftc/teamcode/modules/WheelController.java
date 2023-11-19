@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode.modules;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
+import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class WheelController {
     // --- Constants ---
-
-    public static final int maxVelocity = 500;
-
-    public static final double dpad_vertical_power = 0.35;
-    public static final double dpad_horizontal_power = 0.25;
 
     public static final int setPositionClearance = 10;
     public static final int setPositionTimeLeewayMS = 200;
@@ -35,17 +32,17 @@ public class WheelController {
         }
     }
 
-    public class WheelVelocities {
-        int backLeft;
-        int backRight;
-        int frontLeft;
-        int frontRight;
+    public class WheelPowers {
+        double backLeft;
+        double backRight;
+        double frontLeft;
+        double frontRight;
 
-        public WheelVelocities(int backLeft, int backRight, int frontLeft, int frontRight) {
+        public WheelPowers(double backLeft, double backRight, double frontLeft, double frontRight) {
             this.set(backLeft, backRight, frontLeft, frontRight);
         }
 
-        public void set(int backLeft, int backRight, int frontLeft, int frontRight) {
+        public void set(double backLeft, double backRight, double frontLeft, double frontRight) {
             this.backLeft = backLeft;
             this.backRight = backRight;
             this.frontLeft = frontLeft;
@@ -61,19 +58,70 @@ public class WheelController {
     public final DcMotorEx.Direction leftDirection = DcMotorEx.Direction.REVERSE;
     public final DcMotorEx.Direction rightDirection = DcMotorEx.Direction.FORWARD;
 
-    public final DcMotorEx.ZeroPowerBehavior zeroPowerBehavior = DcMotorEx.ZeroPowerBehavior.BRAKE;
+    public final ZeroPowerBehavior zeroPowerBehavior = ZeroPowerBehavior.BRAKE;;
 
-    public final WheelVelocities velocities;
+    public final WheelPowers powers;
 
     public WheelTarget target = null;
 
-    public WheelController(DcMotorEx backLeft, DcMotorEx backRight, DcMotorEx frontLeft, DcMotorEx frontRight) {
+    public WheelController(DcMotorEx backLeft, DcMotorEx backRight, DcMotorEx frontLeft,
+            DcMotorEx frontRight) {
         this.backLeft = backLeft;
         this.backRight = backRight;
         this.frontLeft = frontLeft;
         this.frontRight = frontRight;
 
-        velocities = new WheelVelocities(0, 0, 0, 0);
+        powers = new WheelPowers(0, 0, 0, 0);
+    }
+
+    public void init() {
+        backLeft.setDirection(leftDirection);
+        frontLeft.setDirection(leftDirection);
+
+        backRight.setDirection(rightDirection);
+        frontRight.setDirection(rightDirection);
+
+        backLeft.setZeroPowerBehavior(zeroPowerBehavior);
+        backRight.setZeroPowerBehavior(zeroPowerBehavior);
+        frontLeft.setZeroPowerBehavior(zeroPowerBehavior);
+        frontRight.setZeroPowerBehavior(zeroPowerBehavior);
+
+        resetZeroPositions();
+    }
+
+    public void update() {
+        if (target == null) {
+            setRunMode(RunMode.RUN_WITHOUT_ENCODER);
+
+            backLeft.setPower(powers.backLeft);
+            backRight.setPower(powers.backRight);
+            frontLeft.setPower(powers.frontLeft);
+            frontRight.setPower(powers.frontRight);
+        } else {
+            if ((isAtTarget(backLeft.getCurrentPosition(), target.backLeft)
+                    && isAtTarget(backRight.getCurrentPosition(), target.backRight)
+                    && isAtTarget(frontLeft.getCurrentPosition(), target.frontLeft)
+                    && isAtTarget(frontRight.getCurrentPosition(), target.frontRight))
+                    || (target.currentTime.milliseconds() >= (target.targetTime + setPositionTimeLeewayMS))) {
+                resetZeroPositions();
+
+                target = null;
+
+                setRunMode(RunMode.RUN_WITHOUT_ENCODER);
+            } else {
+                setRunMode(RunMode.RUN_TO_POSITION);
+
+                backLeft.setTargetPosition(target.backLeft);
+                backRight.setTargetPosition(target.backRight);
+                frontLeft.setTargetPosition(target.frontLeft);
+                frontRight.setTargetPosition(target.frontRight);
+
+                backLeft.setVelocity(Math.abs(target.backLeft) / target.targetTime * 1000);
+                backRight.setVelocity(Math.abs(target.backRight) / target.targetTime * 1000);
+                frontLeft.setVelocity(Math.abs(target.frontLeft) / target.targetTime * 1000);
+                frontRight.setVelocity(Math.abs(target.frontRight) / target.targetTime * 1000);
+            }
+        }
     }
 
     public void setTarget(WheelTarget target) {
@@ -81,52 +129,18 @@ public class WheelController {
     }
 
     public void setPowers(double backLeft, double backRight, double frontLeft, double frontRight) {
-        velocities.set(
-                (int) Math.round(backLeft * maxVelocity),
-                (int) Math.round(backRight * maxVelocity),
-                (int) Math.round(frontLeft * maxVelocity),
-                (int) Math.round(frontRight * maxVelocity));
-    }
-
-    public void run() {
-        if (target == null) {
-            setRunMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        } else {
-            if ((isAtTarget(backLeft.getCurrentPosition(), target.backLeft)
-                    && isAtTarget(backRight.getCurrentPosition(), target.backRight)
-                    && isAtTarget(frontLeft.getCurrentPosition(), target.frontLeft)
-                    && isAtTarget(frontRight.getCurrentPosition(), target.frontRight))
-                    || (target.currentTime.milliseconds() >= (target.targetTime + setPositionTimeLeewayMS))) {
-                target = null;
-
-                setRunMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            } else {
-                setRunMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-
-                backLeft.setTargetPosition(target.backLeft);
-                backRight.setTargetPosition(target.backRight);
-                frontLeft.setTargetPosition(target.frontLeft);
-                frontRight.setTargetPosition(target.frontRight);
-
-                velocities.set(
-                        Math.abs(target.backLeft) / target.targetTime * 1000,
-                        Math.abs(target.backRight) / target.targetTime * 1000,
-                        Math.abs(target.frontLeft) / target.targetTime * 1000,
-                        Math.abs(target.frontRight) / target.targetTime * 1000);
-            }
-        }
-
-        backLeft.setVelocity(velocities.backLeft);
-        backRight.setVelocity(velocities.backRight);
-        frontLeft.setVelocity(velocities.frontLeft);
-        frontRight.setVelocity(velocities.frontRight);
+        powers.set(
+                backLeft,
+                backRight,
+                frontLeft,
+                frontRight);
     }
 
     public boolean isAtTarget(int current, int target) {
         return (Math.round(target / setPositionClearance * 2) - Math.round(current - setPositionClearance * 2)) == 0;
     }
 
-    public void setRunMode(DcMotorEx.RunMode mode) {
+    public void setRunMode(RunMode mode) {
         if (backLeft.getMode() == mode)
             return;
 
@@ -134,5 +148,13 @@ public class WheelController {
         backRight.setMode(mode);
         frontLeft.setMode(mode);
         frontRight.setMode(mode);
+    }
+
+    public void resetZeroPositions() {
+        RunMode mode = backLeft.getMode();
+
+        setRunMode(RunMode.STOP_AND_RESET_ENCODER);
+
+        setRunMode(mode);
     }
 }
