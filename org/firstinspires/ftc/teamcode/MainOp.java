@@ -49,6 +49,7 @@ public class MainOp extends OpMode {
         movements.init();
 
         arm = new ArmController(
+                isAutonomous,
                 gamepad,
                 hardwareMap.get(DcMotorEx.class, "arm"),
                 hardwareMap.get(Servo.class, "wrist"),
@@ -68,6 +69,7 @@ public class MainOp extends OpMode {
 
         movements.setupTelemetry(telemetry);
         wheels.setupTelemetry(telemetry);
+        arm.setupTelemetry(telemetry);
     }
 
     // Run in a loop after INIT is pressed until PLAY is pressed
