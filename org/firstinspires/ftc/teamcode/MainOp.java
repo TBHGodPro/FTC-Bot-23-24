@@ -5,7 +5,6 @@ import org.firstinspires.ftc.teamcode.modules.ArmController;
 import org.firstinspires.ftc.teamcode.modules.MovementController;
 import org.firstinspires.ftc.teamcode.modules.WheelController;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -13,7 +12,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "MainOp")
-public class MainOp extends OpMode {
+public class MainOp extends BaseOp {
     public Boolean isAutonomous;
 
     public Gamepad gamepad;
@@ -21,8 +20,6 @@ public class MainOp extends OpMode {
     public WheelController wheels;
     public MovementController movements;
     public ArmController arm;
-
-    public long frames;
 
     // Run once INIT is pressed
     public void init() {
