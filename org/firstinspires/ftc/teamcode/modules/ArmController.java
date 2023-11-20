@@ -44,7 +44,7 @@ public class ArmController extends Module {
     public static final int armBackboardPosManual = 480;
     public static final int armBackboardPosAutonomous = 625;
 
-    public static final double wristBackboardPos = 0.908;
+    public static final double wristBackboardPos = 0.89;
 
     // - Overhead Position
     public static final int armOverheadPos = 1950;

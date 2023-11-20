@@ -30,9 +30,7 @@ public class ABPSThread extends Thread {
             op.arm.gotToBackboardPosition();
         }
 
-        boolean done = false;
-
-        while (!done && op.abps.state != ABPSState.STOPPED) {
+        while (op.abps.state != ABPSState.STOPPED) {
             List<AprilTagDetection> detections = op.abps.camera.processor.getDetections();
 
             if (detections.size() == 0)
@@ -53,7 +51,7 @@ public class ABPSThread extends Thread {
             if (distance <= 13.5)
                 break;
 
-            int wheelTicks = (int) (distance - 13.5) * 60;
+            int wheelTicks = (int) (distance - 14) * 35;
 
             if (wheelTicks < 10)
                 break;
