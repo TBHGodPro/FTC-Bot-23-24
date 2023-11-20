@@ -30,7 +30,7 @@ const dir = resolve(__dirname, 'org/firstinspires/ftc/teamcode');
     for (const file of files) {
       const newPath = resolve(path, file);
 
-      if (file.endsWith('.java')) {
+      if (file.endsWith('.java') || file.endsWith('.md')) {
         const form = new FormData();
 
         form.append('file', await fileFromPath(newPath));

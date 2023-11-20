@@ -32,10 +32,10 @@ public class ArmController extends Module {
 
     // - Intake Position
     public final int armIntakePos;
-    public static final int armIntakePosManual = 170;
+    public static final int armIntakePosManual = 185;
     public static final int armIntakePosAutonomous = 315;
 
-    public static final double wristIntakePos = 0.54;
+    public static final double wristIntakePos = 0.52;
 
     public final boolean shouldOpenHandAtIntake;
 
@@ -44,7 +44,7 @@ public class ArmController extends Module {
     public static final int armBackboardPosManual = 480;
     public static final int armBackboardPosAutonomous = 625;
 
-    public static final double wristBackboardPos = 0.928;
+    public static final double wristBackboardPos = 0.908;
 
     // - Overhead Position
     public static final int armOverheadPos = 1950;
@@ -137,23 +137,17 @@ public class ArmController extends Module {
 
         // Intake Position
         if (gamepad.b) {
-            armPos = armIntakePos;
-            wristPos = wristIntakePos;
-            if (shouldOpenHandAtIntake) {
-                isHandClosed = false;
-            }
+            goToIntakePosition();
         }
 
         // Backboard Position
         if (gamepad.a) {
-            armPos = armBackboardPos;
-            wristPos = wristBackboardPos;
+            gotToBackboardPosition();
         }
 
         // Overhead Position
         if (gamepad.guide) {
-            armPos = armOverheadPos;
-            wristPos = wristOverheadPos;
+            goToOverheadPosition();
         }
 
         // Reset Arm
@@ -172,6 +166,24 @@ public class ArmController extends Module {
         arm.setMode(RunMode.RUN_TO_POSITION);
 
         arm.setVelocity(armSpeed);
+    }
+
+    public void goToIntakePosition() {
+        armPos = armIntakePos;
+        wristPos = wristIntakePos;
+        if (shouldOpenHandAtIntake) {
+            isHandClosed = false;
+        }
+    }
+
+    public void gotToBackboardPosition() {
+        armPos = armBackboardPos;
+        wristPos = wristBackboardPos;
+    }
+
+    public void goToOverheadPosition() {
+        armPos = armOverheadPos;
+        wristPos = wristOverheadPos;
     }
 
     @Override

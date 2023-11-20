@@ -17,30 +17,29 @@ public class WheelController extends Module {
 
     // -----------------
 
-    public class WheelTarget {
-        int backLeft;
-        int backRight;
-        int frontLeft;
-        int frontRight;
-        int targetTime;
-        ElapsedTime currentTime;
+    public static final class WheelTarget {
+        public int backLeft;
+        public int backRight;
+        public int frontLeft;
+        public int frontRight;
+        public int targetTime;
+        public ElapsedTime currentTime;
 
-        public WheelTarget(int backLeft, int backRight, int frontLeft, int frontRight, int targetTime,
-                ElapsedTime currentTime) {
+        public WheelTarget(int backLeft, int backRight, int frontLeft, int frontRight, int targetTime) {
             this.backLeft = backLeft;
             this.backRight = backRight;
             this.frontLeft = frontLeft;
             this.frontRight = frontRight;
             this.targetTime = targetTime;
-            this.currentTime = currentTime;
+            this.currentTime = new ElapsedTime();
         }
     }
 
-    public class WheelPowers {
-        double backLeft;
-        double backRight;
-        double frontLeft;
-        double frontRight;
+    public static final class WheelPowers {
+        public double backLeft;
+        public double backRight;
+        public double frontLeft;
+        public double frontRight;
 
         public WheelPowers(double backLeft, double backRight, double frontLeft, double frontRight) {
             this.set(backLeft, backRight, frontLeft, frontRight);
@@ -129,6 +128,8 @@ public class WheelController extends Module {
     }
 
     public void setTarget(WheelTarget target) {
+        resetZeroPositions();
+
         this.target = target;
     }
 
@@ -141,7 +142,7 @@ public class WheelController extends Module {
     }
 
     public boolean isAtTarget(int current, int target) {
-        return (Math.round(target / setPositionClearance * 2) - Math.round(current - setPositionClearance * 2)) == 0;
+        return (Math.round(target / setPositionClearance * 2) - Math.round(current / setPositionClearance * 2)) == 0;
     }
 
     public void setRunMode(RunMode mode) {

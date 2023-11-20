@@ -31,7 +31,7 @@ public abstract class BaseOp extends OpMode {
         long currentFrames = frames;
 
         while (frames <= currentFrames + 1) {
-            sleep(1);
+            sleep(5);
         }
     }
 }

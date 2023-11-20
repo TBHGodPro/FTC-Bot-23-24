@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.modules.ABPSController;
 import org.firstinspires.ftc.teamcode.modules.ArmController;
 import org.firstinspires.ftc.teamcode.modules.MovementController;
 import org.firstinspires.ftc.teamcode.modules.WheelController;
@@ -20,6 +22,7 @@ public class MainOp extends BaseOp {
     public WheelController wheels;
     public MovementController movements;
     public ArmController arm;
+    public ABPSController abps;
 
     // Run once INIT is pressed
     public void init() {
@@ -54,6 +57,10 @@ public class MainOp extends BaseOp {
 
         arm.init();
 
+        abps = new ABPSController(this, gamepad, hardwareMap.get(WebcamName.class, "Webcam 1"));
+
+        abps.init();
+
         telemetry.addLine("--- Bot ---");
         telemetry.addLine();
         telemetry.addData("FPS", new Func<String>() {
@@ -67,6 +74,7 @@ public class MainOp extends BaseOp {
         movements.setupTelemetry(telemetry);
         wheels.setupTelemetry(telemetry);
         arm.setupTelemetry(telemetry);
+        abps.setupTelemetry(telemetry);
     }
 
     // Run in a loop after INIT is pressed until PLAY is pressed
@@ -91,6 +99,8 @@ public class MainOp extends BaseOp {
         wheels.update();
 
         arm.update();
+
+        abps.loop();
     }
 
     // Run once STOP is pressed

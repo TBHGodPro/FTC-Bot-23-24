@@ -16,12 +16,9 @@ public class MovementController extends Module {
             RevHubOrientationOnRobot.LogoFacingDirection.UP,
             RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD);
 
-    public static final double dpadVerticalPower = 0.35;
-    public static final double dpadHorizontalPower = 0.25;
-
     public static final double turningNonLinearity = 1.75; // 1 = linear
 
-    public static final double steeringCounterCoeff = 35; // Lower = more power
+    public static final double steeringCounterCoeff = 30; // Lower = more power
 
     // -----------------
 
@@ -54,24 +51,6 @@ public class MovementController extends Module {
         double rawY = -gamepad.left_stick_y;
         double rawX = gamepad.left_stick_x;
         double rawTurn = gamepad.right_stick_x;
-
-        // D-Pad
-
-        // - Vertical
-        if (gamepad.dpad_up) {
-            rawY += dpadVerticalPower;
-        }
-        if (gamepad.dpad_down) {
-            rawY -= dpadVerticalPower;
-        }
-
-        // - Horizontal
-        if (gamepad.dpad_right) {
-            rawX += dpadHorizontalPower;
-        }
-        if (gamepad.dpad_left) {
-            rawX -= dpadHorizontalPower;
-        }
 
         // Get Facing Angle
         double rawAngle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
