@@ -86,12 +86,18 @@ public class ABPSController extends Module {
     @Override
     public void addTelemetry(Telemetry telemetry) {
 
-        telemetry.addData("Detections", new Func<String>() {
+        telemetry.addData("State", new Func<String>() {
             @Override
             public String value() {
-                return camera.processor.getDetections().size() + "";
+                return state == ABPSState.STOPPED ? "Stopped" : ("Active (" + state.name() + ")");
             }
         })
+                .addData("Detections", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return camera.processor.getDetections().size() + "";
+                    }
+                })
                 .addData("Info", new Func<String>() {
                     @Override
                     public String value() {

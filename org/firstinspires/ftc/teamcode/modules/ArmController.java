@@ -32,7 +32,7 @@ public class ArmController extends Module {
 
     // - Intake Position
     public final int armIntakePos;
-    public static final int armIntakePosManual = 185;
+    public static final int armIntakePosManual = 170;
     public static final int armIntakePosAutonomous = 315;
 
     public static final double wristIntakePos = 0.52;

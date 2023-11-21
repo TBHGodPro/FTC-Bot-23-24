@@ -20,8 +20,8 @@ public class ABPSThread extends Thread {
         op.movements.desiredAngle = op.abps.state == ABPSState.LEFT ? 90d : -90d;
         ;
 
-        while ((Math.round(op.movements.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) / 5) != Math
-                .round(op.movements.desiredAngle / 5)
+        while ((Math.round(op.movements.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) / 10) != Math
+                .round(op.movements.desiredAngle / 10)
                 || op.abps.camera.processor.getDetections().size() == 0) && op.abps.state != ABPSState.STOPPED) {
             waitTime(5);
         }
@@ -33,15 +33,16 @@ public class ABPSThread extends Thread {
         while (op.abps.state != ABPSState.STOPPED) {
             List<AprilTagDetection> detections = op.abps.camera.processor.getDetections();
 
-            if (detections.size() == 0)
-                break;
+            if (detections.size() == 0) {
+                continue;
+            }
 
             AprilTagDetection bestDetection = null;
 
             for (AprilTagDetection detection : detections) {
                 if (bestDetection == null) {
                     bestDetection = detection;
-                } else if (bestDetection.ftcPose.yaw > detection.ftcPose.yaw) {
+                } else if (Math.abs(bestDetection.ftcPose.yaw) > Math.abs(detection.ftcPose.yaw)) {
                     bestDetection = detection;
                 }
             }

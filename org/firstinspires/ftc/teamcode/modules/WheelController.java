@@ -15,6 +15,8 @@ public class WheelController extends Module {
     public static final int setPositionClearance = 10;
     public static final int setPositionTimeLeewayMS = 200;
 
+    public static final double wheelMaxPower = 0.75;
+
     // -----------------
 
     public static final class WheelTarget {
@@ -96,10 +98,10 @@ public class WheelController extends Module {
         if (target == null) {
             setRunMode(RunMode.RUN_WITHOUT_ENCODER);
 
-            backLeft.setPower(powers.backLeft);
-            backRight.setPower(powers.backRight);
-            frontLeft.setPower(powers.frontLeft);
-            frontRight.setPower(powers.frontRight);
+            backLeft.setPower(powers.backLeft * wheelMaxPower);
+            backRight.setPower(powers.backRight * wheelMaxPower);
+            frontLeft.setPower(powers.frontLeft * wheelMaxPower);
+            frontRight.setPower(powers.frontRight * wheelMaxPower);
         } else {
             if ((isAtTarget(backLeft.getCurrentPosition(), target.backLeft)
                     && isAtTarget(backRight.getCurrentPosition(), target.backRight)
