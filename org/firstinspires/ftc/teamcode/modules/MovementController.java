@@ -18,7 +18,7 @@ public class MovementController extends Module {
 
     public static final double turningNonLinearity = 1.75; // 1 = linear
 
-    public static final double steeringCounterCoeff = 40; // Lower = more power
+    public static final double steeringCounterCoeff = 30; // Lower = more power
 
     // -----------------
 

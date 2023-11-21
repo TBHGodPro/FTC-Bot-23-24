@@ -61,13 +61,17 @@ public class ABPSController extends Module {
             state = ABPSState.STOPPED;
         }
 
-        if (gamepad.dpad_left && state == ABPSState.STOPPED) {
+        if (gamepad.dpad_left) {
             state = ABPSState.LEFT;
+
+            executor.submit(emptyRunnable);
 
             executor.submit(thread);
         }
-        if (gamepad.dpad_right && state == ABPSState.STOPPED) {
+        if (gamepad.dpad_right) {
             state = ABPSState.RIGHT;
+
+            executor.submit(emptyRunnable);
 
             executor.submit(thread);
         }

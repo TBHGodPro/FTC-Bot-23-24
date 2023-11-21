@@ -18,7 +18,6 @@ public class ABPSThread extends Thread {
     @Override
     public void run() {
         op.movements.desiredAngle = op.abps.state == ABPSState.LEFT ? 90d : -90d;
-        ;
 
         while ((Math.round(op.movements.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES) / 10) != Math
                 .round(op.movements.desiredAngle / 10)
@@ -40,22 +39,26 @@ public class ABPSThread extends Thread {
             AprilTagDetection bestDetection = null;
 
             for (AprilTagDetection detection : detections) {
-                if (bestDetection == null) {
+                if (bestDetection == null)
                     bestDetection = detection;
-                } else if (Math.abs(bestDetection.ftcPose.yaw) > Math.abs(detection.ftcPose.yaw)) {
+
+                if (detection.id == 1)
                     bestDetection = detection;
-                }
+                else if (detection.id == 2 && bestDetection.id != 1)
+                    bestDetection = detection;
+                else if (detection.id == 3 && bestDetection.id != 1 && bestDetection.id != 2)
+                    bestDetection = detection;
             }
 
             double distance = bestDetection.ftcPose.range;
 
-            if (distance <= 13.5)
+            if (distance <= 14)
                 break;
 
-            int wheelTicks = (int) (distance - 14) * 35;
+            int wheelTicks = (int) (distance - 14) * 40;
 
-            if (wheelTicks < 10)
-                break;
+            if (wheelTicks < 2)
+                continue;
 
             op.wheels.setTarget(
                     new WheelTarget(wheelTicks, wheelTicks, wheelTicks, wheelTicks, (int) (wheelTicks / 1.6)));
